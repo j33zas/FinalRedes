@@ -80,9 +80,9 @@ public class CharFA : MonoBehaviour
 
     }
 
-    public void SpawnIn()
+    public void SpawnIn(Vector3 position)
     {
-        transform.position = GameManager.GM.GetRandomPLSpawnPosition();
+        transform.position = position;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

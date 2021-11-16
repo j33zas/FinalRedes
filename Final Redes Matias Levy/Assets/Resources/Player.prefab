@@ -538,13 +538,12 @@ GameObject:
   - component: {fileID: 182118018424475684}
   - component: {fileID: 1405203702236498312}
   - component: {fileID: 5812763434263323521}
-  - component: {fileID: 8395374845982867701}
   - component: {fileID: 6324258429047643643}
   - component: {fileID: 4537809215222590557}
   - component: {fileID: 5459766292709545317}
   - component: {fileID: 7536689032735766293}
-  - component: {fileID: 5761492315580516477}
   - component: {fileID: 3108752430382230935}
+  - component: {fileID: 5761492315580516477}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -600,32 +599,6 @@ CircleCollider2D:
   m_Offset: {x: 0, y: -0.1}
   serializedVersion: 2
   m_Radius: 0.41
---- !u!61 &8395374845982867701
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8406804486184576035}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 1.4890459, y: 0.38555753}
-  m_EdgeRadius: 0
 --- !u!95 &6324258429047643643
 Animator:
   serializedVersion: 3
@@ -718,6 +691,22 @@ MonoBehaviour:
     InterpolateOption: 0
     InterpolateMoveTowardsSpeed: 1
     InterpolateLerpSpeed: 0
+--- !u!114 &3108752430382230935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8406804486184576035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e7cb724808c322458aa4d15f5035fa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizeVelocity: 1
+  m_SynchronizeAngularVelocity: 0
+  m_TeleportEnabled: 0
+  m_TeleportIfDistanceGreaterThan: 3
 --- !u!50 &5761492315580516477
 Rigidbody2D:
   serializedVersion: 4
@@ -739,19 +728,3 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &3108752430382230935
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8406804486184576035}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e7cb724808c322458aa4d15f5035fa9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SynchronizeVelocity: 1
-  m_SynchronizeAngularVelocity: 0
-  m_TeleportEnabled: 0
-  m_TeleportIfDistanceGreaterThan: 3

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
 using Photon.Realtime;
@@ -12,8 +13,10 @@ public class ServerCustom : MonoBehaviourPun
     public CharFA charControllerPF;
     public CharInput charInputPF;
     Player _server;
-    Dictionary<Player, CharFA> PlayerControllers = new Dictionary<Player, CharFA>();
+    Dictionary<Player, CharFA> PLToCharFA = new Dictionary<Player, CharFA>();
+    Dictionary<CharFA, Player> CharFAToPL = new Dictionary<CharFA, Player>();
     bool allPLin;
+    public Text debugTxt;
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -43,9 +46,10 @@ public class ServerCustom : MonoBehaviourPun
     void AddPlayer(Player PL)
     {
         CharFA charInstance = PhotonNetwork.Instantiate(charControllerPF.name, Vector3.zero, Quaternion.identity).GetComponent<CharFA>();
-        PlayerControllers.Add(PL, charInstance);
+        PLToCharFA.Add(PL, charInstance);
+        CharFAToPL.Add(charInstance, PL);
         DontDestroyOnLoad(charInstance);
-        if (PlayerControllers.Count >= 1 && !allPLin)//cambiar a 4 para cumplir
+        if (PLToCharFA.Count >= 1 && !allPLin)//cambiar a 4 para cumplir
         {
             if (LobbyManager.lobby != null)
                 LobbyManager.lobby.AllPlayersIn();
@@ -67,6 +71,25 @@ public class ServerCustom : MonoBehaviourPun
     }
     #endregion
 
+    #region Spawn player    
+    public void RequestSpawnPL(CharFA FA, Vector3 pos)
+    {
+        debugTxt.text = pos + "";
+        Player PL;
+        if (CharFAToPL.ContainsKey(FA))
+        {
+            PL = CharFAToPL[FA];
+            photonView.RPC("SpawnPlayerRPC", RpcTarget.All, PL, pos);
+        }
+    }
+    [PunRPC]
+    void SpawnPlayerRPC(Player PL, Vector3 pos)
+    {
+        if (PLToCharFA.ContainsKey(PL))
+            PLToCharFA[PL].SpawnIn(pos);
+    }
+    #endregion
+
     #region Misc Functions
     public Player GetServerPlayer()
     {
@@ -77,10 +100,24 @@ public class ServerCustom : MonoBehaviourPun
     }
     public CharFA GetControllerFromPL(Player PL)
     {
-        if (PlayerControllers.ContainsKey(PL))
-            return PlayerControllers[PL];
+        if (PLToCharFA.ContainsKey(PL))
+            return PLToCharFA[PL];
         else
             return null;
+    }
+    public CharFA[] GetAllControllers()
+    {
+        List<CharFA> result = new List<CharFA>();
+        foreach (var PL in PLToCharFA)
+            result.Add(PL.Value);
+        return result.ToArray();
+    }
+    public Player[] GetAllPlayers()
+    {
+        List<Player> result = new List<Player>();
+        foreach (var PL in PLToCharFA)
+            result.Add(PL.Key);
+        return result.ToArray();
     }
     #endregion
 
@@ -92,8 +129,8 @@ public class ServerCustom : MonoBehaviourPun
     [PunRPC]
     void MovePL(Player PL, Vector2 dir)
     {
-        if (PlayerControllers.ContainsKey(PL))
-            PlayerControllers[PL].Move(dir);
+        if (PLToCharFA.ContainsKey(PL))
+            PLToCharFA[PL].Move(dir);
     }
     #endregion
 
@@ -105,8 +142,8 @@ public class ServerCustom : MonoBehaviourPun
     [PunRPC]
     void LookPL(Player PL, Vector3 v3)
     {
-        if (PlayerControllers.ContainsKey(PL))
-            PlayerControllers[PL].Look(v3);
+        if (PLToCharFA.ContainsKey(PL))
+            PLToCharFA[PL].Look(v3);
     }
     #endregion
 
