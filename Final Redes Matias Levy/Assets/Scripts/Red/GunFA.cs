@@ -11,7 +11,8 @@ public class GunFA : MonoBehaviourPun
     public int maxAmmo;
     int _currAmmo;
     public float recoil;
-    bool _canShoot;
+    bool _canShoot = true;
+    public float reloadTime;
 
     public Transform shootPos;
     public BulletFA bullet;
@@ -19,6 +20,7 @@ public class GunFA : MonoBehaviourPun
     private void Start()
     {
         StartCoroutine(Tick());
+        _currAmmo = maxAmmo;
     }
 
     IEnumerator Tick()
@@ -40,15 +42,19 @@ public class GunFA : MonoBehaviourPun
 
     public void Shoot()
     {
-        if (!photonView.IsMine)
-            return;
-
-        if(_canShoot && _currAmmo > 0)
+        if(_canShoot && _currAmmo > 0 && PhotonNetwork.IsMasterClient)
         {
             Vector3 recoilV = new Vector3(0, 0, Random.Range(-recoil, recoil));
             BulletFA B = PhotonNetwork.Instantiate(bullet.name, shootPos.position, shootPos.rotation).GetComponent<BulletFA>();
             B.transform.Rotate(recoilV);
+            _canShoot = false;
             _currAmmo--;
         }
+    }
+
+    public IEnumerator Reload()
+    {
+        yield return new WaitForSeconds(reloadTime);
+        _currAmmo = maxAmmo;
     }
 }

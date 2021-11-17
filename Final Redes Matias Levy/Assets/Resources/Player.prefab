@@ -398,7 +398,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fireRate: 0.2
   maxAmmo: 35
-  recoil: 15
+  recoil: 10
+  reloadTime: 0
   shootPos: {fileID: 2237246519197322874}
   bullet: {fileID: 3054893250752478161, guid: 78fb77042870e9f42be400db0167fc1d, type: 3}
 --- !u!1 &5089655384790818731
@@ -452,7 +453,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &460313279324468486
 Transform:
   m_ObjectHideFlags: 0
@@ -623,6 +624,7 @@ MonoBehaviour:
   fireRate: 0.4
   maxAmmo: 12
   recoil: 5
+  reloadTime: 0
   shootPos: {fileID: 2237246519197322874}
   bullet: {fileID: 3054893250752478161, guid: 294b4d67bb1e6b84bb981aacd8d720b7, type: 3}
 --- !u!1 &8406804486184576035

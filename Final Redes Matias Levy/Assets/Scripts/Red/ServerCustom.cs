@@ -100,6 +100,11 @@ public class ServerCustom : MonoBehaviourPun
             result.Add(PL.Key);
         return result.ToArray();
     }
+    public void DestroyMe(GameObject GO)
+    {
+        //if (PhotonNetwork.IsMasterClient)
+            PhotonNetwork.Destroy(GO);
+    }
     #endregion
 
     #region Player spawn    
