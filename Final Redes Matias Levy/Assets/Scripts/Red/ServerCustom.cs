@@ -71,25 +71,6 @@ public class ServerCustom : MonoBehaviourPun
     }
     #endregion
 
-    #region Spawn player    
-    public void RequestSpawnPL(CharFA FA, Vector3 pos)
-    {
-        debugTxt.text = pos + "";
-        Player PL;
-        if (CharFAToPL.ContainsKey(FA))
-        {
-            PL = CharFAToPL[FA];
-            photonView.RPC("SpawnPlayerRPC", RpcTarget.All, PL, pos);
-        }
-    }
-    [PunRPC]
-    void SpawnPlayerRPC(Player PL, Vector3 pos)
-    {
-        if (PLToCharFA.ContainsKey(PL))
-            PLToCharFA[PL].SpawnIn(pos);
-    }
-    #endregion
-
     #region Misc Functions
     public Player GetServerPlayer()
     {
@@ -121,7 +102,26 @@ public class ServerCustom : MonoBehaviourPun
     }
     #endregion
 
-    #region mover posicion
+    #region Player spawn    
+    public void RequestSpawnPL(CharFA FA, Vector3 pos)
+    {
+        debugTxt.text = pos + "";
+        Player PL;
+        if (CharFAToPL.ContainsKey(FA))
+        {
+            PL = CharFAToPL[FA];
+            photonView.RPC("SpawnPlayerRPC", RpcTarget.All, PL, pos);
+        }
+    }
+    [PunRPC]
+    void SpawnPlayerRPC(Player PL, Vector3 pos)
+    {
+        if (PLToCharFA.ContainsKey(PL))
+            PLToCharFA[PL].SpawnIn(pos);
+    }
+    #endregion
+
+    #region Player move
     public void RequestMove(Player PL, Vector2 dir)
     {
         photonView.RPC("MovePL", RpcTarget.All, PL, dir);
@@ -134,7 +134,7 @@ public class ServerCustom : MonoBehaviourPun
     }
     #endregion
 
-    #region mirar al mouse
+    #region Player look
     public void RequestLook(Player PL, Vector3 v3)
     {
         photonView.RPC("LookPL", RpcTarget.All, PL, v3);
@@ -147,4 +147,16 @@ public class ServerCustom : MonoBehaviourPun
     }
     #endregion
 
+    #region Player shoot
+    public void RequestShoot(Player PL)
+    {
+        photonView.RPC("ShootPL", RpcTarget.All, PL);
+    }
+    [PunRPC]
+    void ShootPL(Player PL)
+    {
+        if (PLToCharFA.ContainsKey(PL))
+            PLToCharFA[PL].Shoot();
+    }
+    #endregion
 }

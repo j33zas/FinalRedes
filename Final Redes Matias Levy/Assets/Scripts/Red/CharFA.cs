@@ -4,25 +4,26 @@ using UnityEngine;
 
 public class CharFA : MonoBehaviour
 {
-    public int rifleMaxAmmo;
-    int _rifleCurrAmmo;
-    public int pistolMaxAmmo;
-    int _pistolCurrAmmo;
+    //guns
+    public GunFA Rifle;
+    public GunFA pistol;
+    GunFA currentGun;
+    //stats
     public int maxHP;
     int _currHP;
     public float maxSpeed;
     float _currSpeed;
     public int acceleration;
+    //unity
     Rigidbody2D _RB;
+    //misc
     int _score = 0;
     private void Awake()
     {
         _RB = GetComponent<Rigidbody2D>();
-        _rifleCurrAmmo = rifleMaxAmmo;
-        _pistolCurrAmmo = pistolMaxAmmo;
-        //_currSpeed = 0;
         _currSpeed = maxSpeed;
         _currHP = maxHP;
+        currentGun = Rifle;
     }
 
     public void Move(Vector2 dir)
@@ -52,7 +53,7 @@ public class CharFA : MonoBehaviour
 
     public void Shoot()
     {
-
+        currentGun.Shoot();
     }
 
     public void Reload()
@@ -70,7 +71,7 @@ public class CharFA : MonoBehaviour
 
     }
 
-    public void Parry()
+    public void ChangeWPN()
     {
 
     }

@@ -46,9 +46,7 @@ public class CharInput : MonoBehaviour
                 ServerCustom.server.RequestMove(PhotonNetwork.LocalPlayer, moveDir);
                 ServerCustom.server.RequestLook(PhotonNetwork.LocalPlayer, lookDir);
                 if (Input.GetMouseButton(0))//m1 apretado
-                {
-                    //ServerCustom.server.RequestShoot(PhotonNetwork.LocalPlayer);
-                }
+                    ServerCustom.server.RequestShoot(PhotonNetwork.LocalPlayer);
             }
         }
     }
