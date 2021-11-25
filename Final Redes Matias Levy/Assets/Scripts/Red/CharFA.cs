@@ -5,9 +5,9 @@ using UnityEngine;
 public class CharFA : MonoBehaviour
 {
     //guns
-    public GunFA Rifle;
-    public GunFA pistol;
+    public GunFA[] Guns;
     GunFA currentGun;
+    int currentGunIndex = 0;
     //stats
     public int maxHP;
     int _currHP;
@@ -16,34 +16,34 @@ public class CharFA : MonoBehaviour
     public int acceleration;
     //unity
     Rigidbody2D _RB;
+    Animator _AN;
     //misc
     int _score = 0;
+    bool _isControllable;
+    public bool Control
+    {
+        get
+        {
+            return _isControllable;
+        }
+        set
+        {
+            _isControllable = value;
+        }
+    }
     private void Awake()
     {
         _RB = GetComponent<Rigidbody2D>();
+        _AN = GetComponent<Animator>();
         _currSpeed = maxSpeed;
         _currHP = maxHP;
-        currentGun = Rifle;
+        currentGun = Guns[currentGunIndex];
+        _isControllable = true;
     }
 
     public void Move(Vector2 dir)
     {
-        if (dir != Vector2.zero)
-        {
-            //if (_currSpeed < maxSpeed)
-            //    _currSpeed += Time.deltaTime * acceleration;
-            //else
-            //    _currSpeed = maxSpeed;
-            _RB.AddForce(dir * maxSpeed * Time.deltaTime, ForceMode2D.Impulse);
-        }
-        else
-        {
-            _RB.velocity = Vector2.zero;
-            //_currSpeed = 0;
-        }
-
-        if (_RB.velocity.magnitude >= maxSpeed)
-            _RB.velocity = dir * maxSpeed;
+        transform.position += new Vector3(dir.x, dir.y, transform.position.z) * maxSpeed * Time.deltaTime;
     }
 
     public void Look(Vector3 v3)
@@ -54,6 +54,8 @@ public class CharFA : MonoBehaviour
     public void Shoot()
     {
         currentGun.Shoot();
+        _AN.SetTrigger("Shoot");
+        _AN.SetInteger("GunID", currentGunIndex);
     }
 
     public void Reload()
@@ -61,9 +63,17 @@ public class CharFA : MonoBehaviour
 
     }
 
-    public void Die()
+    public IEnumerator Die()
     {
-
+        _AN.SetBool("Dead", true);
+        //pantalla ByN
+        //color en gris
+        _score -= 5;
+        if (_score < 0)
+            _score = 0;
+        _isControllable = false;
+        yield return new WaitForSeconds(3);
+        _isControllable = true;
     }
 
     public void Respawn()
@@ -73,21 +83,27 @@ public class CharFA : MonoBehaviour
 
     public void ChangeWPN()
     {
+        Guns[currentGunIndex].gameObject.SetActive(false);
+        currentGunIndex++;
+        if (currentGunIndex > Guns.Length - 1)
+            currentGunIndex = 0;
 
+        Guns[currentGunIndex].gameObject.SetActive(true);
+        currentGun = Guns[currentGunIndex];
     }
 
-    public void TakeDMG()
+    public void TakeDMG(int D)
     {
-
+        _currHP -= D;
+        if(_currHP<=0)
+        {
+            ServerCustom.server.RequestDie(this);
+        }
     }
 
     public void SpawnIn(Vector3 position)
     {
         transform.position = position;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        //ServerCustom.server.RequestLoseHP(dmg);
+        _AN.SetBool("Dead", false);
     }
 }

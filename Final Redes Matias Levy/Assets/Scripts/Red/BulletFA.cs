@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BulletFA : MonoBehaviour
 {
-    public float DMG;
+    public int DMG;
     public float Speed;
     public float Life;
     CharFA OW;
@@ -20,7 +20,7 @@ public class BulletFA : MonoBehaviour
         }
     }
 
-    public BulletFA(float D, float S, float L)
+    public BulletFA(int D, float S, float L)
     {
         DMG = D;
         Speed = S;
@@ -36,14 +36,18 @@ public class BulletFA : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(1 / 60);
+            yield return new WaitForSeconds(ServerCustom.TickRate);
             transform.position += transform.up * Speed * Time.deltaTime;
         }
     }
-    private void OnCollisionEnter2D(Collision2D coll)
+    private void OnTriggerEnter2D(Collider2D coll)
     {
-        Debug.Log("wall");
-        if(coll.gameObject.GetComponent<CharFA>() != owner)
-            ServerCustom.server.DestroyMe(gameObject);
+        CharFA C = coll.gameObject.GetComponent<CharFA>();
+        if (C != owner && C != null)
+        {
+            ServerCustom.server.RequestPlayerDMG(C, DMG);
+            
+        }
+        ServerCustom.server.DestroyMe(gameObject);
     }
 }
