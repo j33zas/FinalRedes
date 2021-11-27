@@ -51,8 +51,8 @@ public class CharInput : MonoBehaviourPun
                     ServerCustom.server.RequestShoot(PhotonNetwork.LocalPlayer);
                 if (Input.GetKeyDown(KeyCode.F))
                     ServerCustom.server.RequestDie(_me);
-                //if (Input.GetKeyDown(KeyCode.Q))
-                    //ServerCustom.server.RequestChangeWPN(PhotonNetwork.LocalPlayer);
+                if (Input.GetKeyDown(KeyCode.Q))
+                    ServerCustom.server.RequestChangeWPN(PhotonNetwork.LocalPlayer);
             }
         }
     }

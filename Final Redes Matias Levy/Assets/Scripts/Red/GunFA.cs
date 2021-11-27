@@ -51,7 +51,12 @@ public class GunFA : MonoBehaviourPun
             _currAmmo--;
         }
     }
-
+    public void Respawn()
+    {
+        _currAmmo = maxAmmo;
+        _timeTillNextShot = 0;
+        _canShoot = true;
+    }
     public IEnumerator Reload()
     {
         yield return new WaitForSeconds(reloadTime);

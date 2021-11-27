@@ -29,8 +29,6 @@ public class GameManager : MonoBehaviour
     public Vector3 GetRandomPLSpawnPosition()
     {
         var pos = Random.Range(0, respawnPos.Length - 1);
-        //verificar si la posicion tiene otro jugado cerca
-        //si tiene, pedir otra
         return respawnPos[pos].position;
     }
 }

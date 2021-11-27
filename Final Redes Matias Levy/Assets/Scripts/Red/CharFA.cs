@@ -34,10 +34,11 @@ public class CharFA : MonoBehaviour
     private void Awake()
     {
         _RB = GetComponent<Rigidbody2D>();
-        _AN = GetComponent<Animator>();
+        _AN = GetComponentInChildren<Animator>();
         _currSpeed = maxSpeed;
         _currHP = maxHP;
         currentGun = Guns[currentGunIndex];
+        currentGun.gameObject.SetActive(true);
         _isControllable = true;
     }
 
@@ -54,8 +55,8 @@ public class CharFA : MonoBehaviour
     public void Shoot()
     {
         currentGun.Shoot();
+        _AN.SetInteger("GunIndex", currentGunIndex);
         _AN.SetTrigger("Shoot");
-        _AN.SetInteger("GunID", currentGunIndex);
     }
 
     public void Reload()
@@ -67,18 +68,17 @@ public class CharFA : MonoBehaviour
     {
         _AN.SetBool("Dead", true);
         //pantalla ByN
-        //color en gris
         _score -= 5;
         if (_score < 0)
             _score = 0;
         _isControllable = false;
         yield return new WaitForSeconds(3);
+        ServerCustom.server.RequestSpawnPL(this, GameManager.GM.GetRandomPLSpawnPosition());
         _isControllable = true;
     }
 
     public void Respawn()
     {
-
     }
 
     public void ChangeWPN()
@@ -96,14 +96,15 @@ public class CharFA : MonoBehaviour
     {
         _currHP -= D;
         if(_currHP<=0)
-        {
             ServerCustom.server.RequestDie(this);
-        }
     }
 
     public void SpawnIn(Vector3 position)
     {
         transform.position = position;
+        _currHP = maxHP;
+        foreach (var gun in Guns)
+            gun.Respawn();
         _AN.SetBool("Dead", false);
     }
 }
