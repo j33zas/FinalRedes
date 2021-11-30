@@ -27,7 +27,7 @@ public class GunFA : MonoBehaviourPun
     {
         while(true)
         {
-            yield return new WaitForSeconds(1 / 60);
+            yield return new WaitForSeconds(ServerCustom.TickRate);
             if (!_canShoot)
             {
                 _timeTillNextShot += Time.deltaTime;
@@ -40,7 +40,7 @@ public class GunFA : MonoBehaviourPun
         }
     }
 
-    public void Shoot()
+    public bool Shoot()
     {
         if(_canShoot && _currAmmo > 0 && PhotonNetwork.IsMasterClient)
         {
@@ -49,7 +49,14 @@ public class GunFA : MonoBehaviourPun
             B.transform.Rotate(recoilV);
             _canShoot = false;
             _currAmmo--;
+            return true;
         }
+        else if(_currAmmo <= 0)
+        {
+            //ServerCustom.server.
+            return false;
+        }
+        return false;
     }
     public void Respawn()
     {

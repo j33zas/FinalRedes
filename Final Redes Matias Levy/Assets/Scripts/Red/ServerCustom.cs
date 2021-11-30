@@ -17,12 +17,12 @@ public class ServerCustom : MonoBehaviourPun
     Dictionary<CharFA, Player> CharFAToPL = new Dictionary<CharFA, Player>();
     bool allPLin;
     public Text debugTxt;
-    static int TR = 128;
+    static int TR = 256;
     public static int TickRate
     {
         get
         {
-            return 1/TR;
+            return 1 / TR;
         }
     }
     private void Awake()
@@ -40,18 +40,15 @@ public class ServerCustom : MonoBehaviourPun
         _serverPL = PL;
         if (PhotonNetwork.LocalPlayer != _serverPL)
         {
-            photonView.RPC("AddPlayer", RpcTarget.All, PhotonNetwork.LocalPlayer);
+            photonView.RPC("AddPlayer", _serverPL, PhotonNetwork.LocalPlayer);
         }
     }
-
     [PunRPC]
     void AddPlayer(Player PL)
     {
-        Debug.LogError(PL.NickName + " se instancia");
         CharFA charInstance = PhotonNetwork.Instantiate(charControllerPF.name, Vector3.zero, Quaternion.identity).GetComponent<CharFA>();
         PLToCharFA.Add(PL, charInstance);
         CharFAToPL.Add(charInstance, PL);
-        DontDestroyOnLoad(charInstance);
         if (PLToCharFA.Count >= 1 && !allPLin)//cambiar a 4 para cumplir
         {
             if (LobbyManager.lobby != null)
@@ -68,9 +65,9 @@ public class ServerCustom : MonoBehaviourPun
     [PunRPC]
     void LoadLevel()
     {
-        PhotonNetwork.LoadLevel("PlayScene");
         if (photonView.IsMine)
             PhotonNetwork.Destroy(LobbyManager.lobby.gameObject);
+        PhotonNetwork.LoadLevel("PlayScene");
     }
     #endregion
 
@@ -82,13 +79,7 @@ public class ServerCustom : MonoBehaviourPun
         else
             return null;
     }
-    public CharFA GetControllerFromPL(Player PL)
-    {
-        if (PLToCharFA.ContainsKey(PL))
-            return PLToCharFA[PL];
-        else
-            return null;
-    }
+
     public CharFA[] GetAllControllers()
     {
         List<CharFA> result = new List<CharFA>();
@@ -96,6 +87,7 @@ public class ServerCustom : MonoBehaviourPun
             result.Add(PL.Value);
         return result.ToArray();
     }
+
     public Player[] GetAllPlayers()
     {
         List<Player> result = new List<Player>();
@@ -103,6 +95,7 @@ public class ServerCustom : MonoBehaviourPun
             result.Add(PL.Key);
         return result.ToArray();
     }
+
     public void DestroyMe(GameObject GO)
     {
         if(PhotonNetwork.IsMasterClient)
@@ -113,13 +106,8 @@ public class ServerCustom : MonoBehaviourPun
     #region Player spawn    
     public void RequestSpawnPL(CharFA FA, Vector3 pos)
     {
-        debugTxt.text = pos + "";
-        Player PL;
-        if (CharFAToPL.ContainsKey(FA))
-        {
-            PL = CharFAToPL[FA];
-            photonView.RPC("SpawnPlayerRPC", RpcTarget.All, PL, pos);
-        }
+        Player PL = CharFAToPL[FA];
+        photonView.RPC("SpawnPlayerRPC", _serverPL, PL, pos);
     }
     [PunRPC]
     void SpawnPlayerRPC(Player PL, Vector3 pos)
@@ -169,11 +157,9 @@ public class ServerCustom : MonoBehaviourPun
     #endregion
 
     #region player Hit
-    public void RequestPlayerDMG(CharFA Char, int DMG)
+    public void RequestPlayerDMG(Player PL, int DMG)
     {
-        Player PL = CharFAToPL[Char];
-        if (PLToCharFA.ContainsKey(PL))
-            photonView.RPC("PlayerDMG", _serverPL, PL, DMG);
+        photonView.RPC("PlayerDMG", RpcTarget.All, PL, DMG);
     }
 
     [PunRPC]
@@ -185,33 +171,41 @@ public class ServerCustom : MonoBehaviourPun
     #endregion
 
     #region Player Die
-    public void RequestDie(CharFA PL)
+    public void RequestDie(Player PL)
     {
-        Player P = CharFAToPL[PL];
-        if (PLToCharFA.ContainsKey(P))
-            photonView.RPC("PlayerDie", _serverPL, P);
+        photonView.RPC("PlayerDie", RpcTarget.All, PL);
     }
     [PunRPC]
     void PlayerDie(Player PL)
     {
         if (PLToCharFA.ContainsKey(PL))
-            PLToCharFA[PL].Die();
+            StartCoroutine(PLToCharFA[PL].Die());
     }
     #endregion
 
     #region Player Change Weapon
     public void RequestChangeWPN(Player PL)
     {
-        if (PLToCharFA.ContainsKey(PL))
-            photonView.RPC("ChangeWPN", _serverPL, PL);
-
+        photonView.RPC("ChangeWPN", RpcTarget.All, PL);
     }
     [PunRPC]
     void ChangeWPN(Player PL)
     {
-        PLToCharFA[PL].ChangeWPN();
+        if (PLToCharFA.ContainsKey(PL))
+            PLToCharFA[PL].ChangeWPN();
     }
     #endregion
 
-
+    #region Player Reload Weapon
+    public void RequestReload(Player PL)
+    {
+        photonView.RPC("ReloadRPC", RpcTarget.All, PL);
+    }
+    [PunRPC]
+    void ReloadRPC(Player PL)
+    {
+        if (PLToCharFA.ContainsKey(PL))
+            PLToCharFA[PL].Reload();    
+    }
+    #endregion
 }

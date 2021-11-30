@@ -283,7 +283,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5495611623504006209
 Transform:
   m_ObjectHideFlags: 0
@@ -470,7 +470,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &460313279324468486
 Transform:
   m_ObjectHideFlags: 0
@@ -660,8 +660,8 @@ MonoBehaviour:
   - {fileID: 8404627443025825970}
   - {fileID: 5903397385319447146}
   maxHP: 100
-  maxSpeed: 3
-  acceleration: 1
+  maxSpeed: 1.3
+  inputPF: {fileID: 3277927090424214994, guid: 3699ae51aac80744cbabea9cf7a98dac, type: 3}
 --- !u!50 &9057015049377533582
 Rigidbody2D:
   serializedVersion: 4
@@ -746,7 +746,7 @@ MonoBehaviour:
     ExtrapolateNumberOfStoredPositions: 1
   m_RotationModel:
     SynchronizeEnabled: 1
-    InterpolateOption: 2
+    InterpolateOption: 0
     InterpolateRotateTowardsSpeed: 180
     InterpolateLerpSpeed: 10
   m_ScaleModel:

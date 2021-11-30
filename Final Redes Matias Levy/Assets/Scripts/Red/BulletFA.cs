@@ -44,10 +44,7 @@ public class BulletFA : MonoBehaviour
     {
         CharFA C = coll.gameObject.GetComponent<CharFA>();
         if (C != owner && C != null)
-        {
-            ServerCustom.server.RequestPlayerDMG(C, DMG);
-            
-        }
+            C.ReceiveDamage(DMG);
         ServerCustom.server.DestroyMe(gameObject);
     }
 }

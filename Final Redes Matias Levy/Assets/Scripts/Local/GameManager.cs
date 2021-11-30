@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public Transform[] respawnPos;
     CharFA[] controllers;
     public float cherckerArea;
+    static GameManager _GM;
     public static GameManager GM
     {
         get
@@ -16,7 +17,6 @@ public class GameManager : MonoBehaviour
             return _GM;
         }
     }
-    static GameManager _GM;
     private void Awake()
     {
         _GM = this;
