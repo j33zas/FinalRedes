@@ -6,11 +6,11 @@ using UnityEngine.UI;
 public class LocalUI : MonoBehaviour
 {
     [SerializeField]
-    Text score;
+    Text score = null;
     [SerializeField]
-    Image health;
+    Image health = null;
     [SerializeField]
-    Image dmgTaken;
+    Image dmgTaken = null;
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);

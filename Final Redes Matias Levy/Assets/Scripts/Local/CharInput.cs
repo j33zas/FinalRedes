@@ -22,21 +22,8 @@ public class CharInput : MonoBehaviourPun
             _me = value;
         }
     }
-    Player PL;
-    public Player mePL
-    {
-        get
-        {
-            return PL;
-        }
-        set
-        {
-            PL = value;
-        }
-    }
     private void Start()
     {
-        mePL = PhotonNetwork.LocalPlayer;
         StartCoroutine(Tick());
     }
     
@@ -56,10 +43,6 @@ public class CharInput : MonoBehaviourPun
                 ServerCustom.server.RequestLook(PhotonNetwork.LocalPlayer, lookDir);
                 if (Input.GetMouseButton(0))//m1 apretado
                     ServerCustom.server.RequestShoot(PhotonNetwork.LocalPlayer);
-                if (Input.GetKeyDown(KeyCode.F))
-                    ServerCustom.server.RequestDie(PhotonNetwork.LocalPlayer);
-                if (Input.GetKeyDown(KeyCode.Q))
-                    ServerCustom.server.RequestChangeWPN(PhotonNetwork.LocalPlayer);
                 if (Input.GetKeyDown(KeyCode.R))
                     ServerCustom.server.RequestReload(PhotonNetwork.LocalPlayer);
             }

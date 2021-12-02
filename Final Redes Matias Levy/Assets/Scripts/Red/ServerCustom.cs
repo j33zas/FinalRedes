@@ -80,6 +80,14 @@ public class ServerCustom : MonoBehaviourPun
             return null;
     }
 
+    public Player GetMyPL(CharFA input)
+    {
+        if (CharFAToPL.ContainsKey(input))
+            return CharFAToPL[input];
+        else
+            return null;
+    }
+
     public CharFA[] GetAllControllers()
     {
         List<CharFA> result = new List<CharFA>();
@@ -159,7 +167,7 @@ public class ServerCustom : MonoBehaviourPun
     #region player Hit
     public void RequestPlayerDMG(Player PL, int DMG)
     {
-        photonView.RPC("PlayerDMG", RpcTarget.All, PL, DMG);
+        photonView.RPC("PlayerDMG", _serverPL, PL, DMG);
     }
 
     [PunRPC]
@@ -171,22 +179,25 @@ public class ServerCustom : MonoBehaviourPun
     #endregion
 
     #region Player Die
-    public void RequestDie(Player PL)
+    public void RequestDie(Player PL, CharFA PLKL)
     {
-        photonView.RPC("PlayerDie", RpcTarget.All, PL);
+        var Temp = CharFAToPL[PLKL];
+        photonView.RPC("PlayerDie", _serverPL, PL, Temp);
     }
     [PunRPC]
-    void PlayerDie(Player PL)
+    void PlayerDie(Player PL, Player killer)
     {
         if (PLToCharFA.ContainsKey(PL))
             StartCoroutine(PLToCharFA[PL].Die());
+        if (PLToCharFA.ContainsKey(killer))
+            PLToCharFA[killer].Score(50);
     }
     #endregion
 
     #region Player Change Weapon
     public void RequestChangeWPN(Player PL)
     {
-        photonView.RPC("ChangeWPN", RpcTarget.All, PL);
+        photonView.RPC("ChangeWPN", _serverPL, PL);
     }
     [PunRPC]
     void ChangeWPN(Player PL)
@@ -199,7 +210,7 @@ public class ServerCustom : MonoBehaviourPun
     #region Player Reload Weapon
     public void RequestReload(Player PL)
     {
-        photonView.RPC("ReloadRPC", RpcTarget.All, PL);
+        photonView.RPC("ReloadRPC", _serverPL, PL);
     }
     [PunRPC]
     void ReloadRPC(Player PL)

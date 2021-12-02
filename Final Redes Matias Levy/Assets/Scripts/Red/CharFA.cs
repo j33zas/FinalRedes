@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class CharFA : MonoBehaviour
+public class CharFA : MonoBehaviourPun
 {
     //guns
     public GunFA[] Guns;
@@ -30,8 +32,9 @@ public class CharFA : MonoBehaviour
             _UI = value;
         }
     }
+    CharFA lastDamager;
     //misc
-    int _score = 0;
+    public int _score = 0;
     bool _isControllable;
     public bool HasControl
     {
@@ -62,7 +65,10 @@ public class CharFA : MonoBehaviour
 
         #region incializo las armas
         foreach (var gun in Guns)
+        {
             gun.gameObject.SetActive(false);
+            gun.owner = this;
+        }
         currentGun = Guns[currentGunIndex];
         currentGun.gameObject.SetActive(true);
         #endregion
@@ -92,21 +98,24 @@ public class CharFA : MonoBehaviour
 
     public void Reload()
     {
-        //_AN.SetTrigger("Reload");
-        //_AN.SetInteger("GunIndex", currentGunIndex);
+        _AN.SetBool("Reloading", true);
         StartCoroutine(currentGun.Reload());
+    }
+    public void EndReload()
+    {
+        _AN.SetBool("Reloading", false);
     }
 
     public IEnumerator Die()
     {
         _AN.SetBool("Dead", true);
-        _score -= 5;
+        HasControl = false;
+        _score -= 20;
         if (_score < 0)
             _score = 0;
-        _isControllable = false;
         yield return new WaitForSeconds(5);
         ServerCustom.server.RequestSpawnPL(this, GameManager.GM.GetRandomPLSpawnPosition());
-        _isControllable = true;
+        HasControl = true;
     }
 
     public void Respawn()
@@ -128,14 +137,14 @@ public class CharFA : MonoBehaviour
     public void TakeDMG(int D)
     {
         _currHP -= D;
-        //HUD.TakeDMG(_currHP, maxHP);
         if(_currHP<=0)
-            ServerCustom.server.RequestDie(_input.mePL);
+            ServerCustom.server.RequestDie(PhotonNetwork.LocalPlayer, lastDamager);
     }
 
-    public void ReceiveDamage(int DMG)
+    public void ReceiveDamage(int DMG, CharFA damager)
     {
-        ServerCustom.server.RequestPlayerDMG(_input.mePL, DMG);
+        ServerCustom.server.RequestPlayerDMG(PhotonNetwork.LocalPlayer, DMG);
+        lastDamager = damager;
     }
 
     public void SpawnIn(Vector3 position)
@@ -145,5 +154,15 @@ public class CharFA : MonoBehaviour
         foreach (var gun in Guns)
             gun.Respawn();
         _AN.SetBool("Dead", false);
+    }
+
+    public void Score(int pointsAdded)
+    {
+        _score += pointsAdded;
+        if(_score > GameManager.GM.winningScore)
+        {
+            //ServerCustom.server.requestWin()
+            Debug.LogError(PhotonNetwork.LocalPlayer.NickName + " is the winner!");
+        }
     }
 }

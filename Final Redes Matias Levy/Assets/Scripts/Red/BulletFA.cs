@@ -1,30 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Realtime;
+using Photon.Pun;
 
-public class BulletFA : MonoBehaviour
+public class BulletFA : MonoBehaviourPun
 {
     public int DMG;
     public float Speed;
-    public float Life;
     CharFA OW;
-    public CharFA owner
+    public CharFA OwnerCharacter
     {
-        set
-        {
-            OW = value;
-        }
         get
         {
             return OW;
         }
-    }
-
-    public BulletFA(int D, float S, float L)
-    {
-        DMG = D;
-        Speed = S;
-        Life = L;
+        set
+        {
+            OW = value;
+        }
     }
 
     private void Start()
@@ -43,8 +37,8 @@ public class BulletFA : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D coll)
     {
         CharFA C = coll.gameObject.GetComponent<CharFA>();
-        if (C != owner && C != null)
-            C.ReceiveDamage(DMG);
+        if (C != OW && C)
+            C.ReceiveDamage(DMG, OW);
         ServerCustom.server.DestroyMe(gameObject);
     }
 }

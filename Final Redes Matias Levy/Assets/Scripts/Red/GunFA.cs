@@ -12,10 +12,12 @@ public class GunFA : MonoBehaviourPun
     int _currAmmo;
     public float recoil;
     bool _canShoot = true;
+    bool _reloading = false;
     public float reloadTime;
 
     public Transform shootPos;
     public BulletFA bullet;
+    public CharFA owner;
 
     private void Start()
     {
@@ -42,19 +44,15 @@ public class GunFA : MonoBehaviourPun
 
     public bool Shoot()
     {
-        if(_canShoot && _currAmmo > 0 && PhotonNetwork.IsMasterClient)
+        if(_canShoot && _currAmmo > 0 && !_reloading && PhotonNetwork.IsMasterClient)
         {
             Vector3 recoilV = new Vector3(0, 0, Random.Range(-recoil, recoil));
             BulletFA B = PhotonNetwork.Instantiate(bullet.name, shootPos.position, shootPos.rotation).GetComponent<BulletFA>();
             B.transform.Rotate(recoilV);
+            B.OwnerCharacter = owner;
             _canShoot = false;
             _currAmmo--;
             return true;
-        }
-        else if(_currAmmo <= 0)
-        {
-            //ServerCustom.server.
-            return false;
         }
         return false;
     }
@@ -66,7 +64,10 @@ public class GunFA : MonoBehaviourPun
     }
     public IEnumerator Reload()
     {
+        _reloading = true;
         yield return new WaitForSeconds(reloadTime);
+        owner.EndReload();
+        _reloading = false;
         _currAmmo = maxAmmo;
     }
 }

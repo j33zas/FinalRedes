@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public Transform[] respawnPos;
     CharFA[] controllers;
     public float cherckerArea;
+    public int winningScore = 300;
     static GameManager _GM;
     public static GameManager GM
     {
