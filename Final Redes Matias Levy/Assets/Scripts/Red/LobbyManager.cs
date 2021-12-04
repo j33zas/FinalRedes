@@ -37,8 +37,10 @@ public class LobbyManager : MonoBehaviourPun
     }
     public void AllPlayersIn()
     {
-        if(PhotonNetwork.LocalPlayer == ServerCustom.server.GetServerPlayer())//solo el server puede poner play
-            PlayButton.gameObject.SetActive(true);
+        if (PhotonNetwork.LocalPlayer != ServerCustom.server.GetServerPlayer())
+            return;//solo el server puede poner play
+        PlayButton.gameObject.SetActive(true);
         PlayButton.onClick.AddListener(ServerCustom.server.StartLevel);
+        //ServerCustom.server.SpawnGUI();
     }
 }

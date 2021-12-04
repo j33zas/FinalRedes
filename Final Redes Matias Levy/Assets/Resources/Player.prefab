@@ -257,7 +257,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -321,7 +321,7 @@ MonoBehaviour:
     InterpolateLerpSpeed: 5
   m_ScaleModel:
     SynchronizeEnabled: 1
-    InterpolateOption: 0
+    InterpolateOption: 1
     InterpolateMoveTowardsSpeed: 1
     InterpolateLerpSpeed: 0
 --- !u!1 &2706891980039348699
@@ -477,11 +477,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fireRate: 0.2
   maxAmmo: 35
-  recoil: 6
+  recoil: 0
   reloadTime: 1
   shootPos: {fileID: 2237246519197322874}
   bullet: {fileID: 3054893250752478161, guid: 78fb77042870e9f42be400db0167fc1d, type: 3}
-  owner: {fileID: 0}
+  owner: {fileID: 1405203702236498312}
 --- !u!1 &5089655384790818731
 GameObject:
   m_ObjectHideFlags: 0
@@ -531,7 +531,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &460313279324468486
 Transform:
   m_ObjectHideFlags: 0
@@ -665,11 +665,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fireRate: 0.05
   maxAmmo: 25
-  recoil: 2
+  recoil: 0
   reloadTime: 1
   shootPos: {fileID: 2237246519197322874}
   bullet: {fileID: 3054893250752478161, guid: 294b4d67bb1e6b84bb981aacd8d720b7, type: 3}
-  owner: {fileID: 0}
+  owner: {fileID: 1405203702236498312}
 --- !u!1 &8406804486184576035
 GameObject:
   m_ObjectHideFlags: 0
@@ -722,7 +722,9 @@ MonoBehaviour:
   - {fileID: 8404627443025825970}
   - {fileID: 5903397385319447146}
   maxHP: 100
+  _currHP: 0
   maxSpeed: 1.8
+  timeToRespawn: 5
   inputPF: {fileID: 3277927090424214994, guid: 3699ae51aac80744cbabea9cf7a98dac, type: 3}
   _score: 0
 --- !u!50 &9057015049377533582

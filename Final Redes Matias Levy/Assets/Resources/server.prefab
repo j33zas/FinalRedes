@@ -49,6 +49,7 @@ MonoBehaviour:
     type: 3}
   charInputPF: {fileID: 3277927090424214994, guid: 3699ae51aac80744cbabea9cf7a98dac,
     type: 3}
+  UIPF: {fileID: 0}
   debugTxt: {fileID: 1786373747611480228}
 --- !u!114 &1854062486733892258
 MonoBehaviour:

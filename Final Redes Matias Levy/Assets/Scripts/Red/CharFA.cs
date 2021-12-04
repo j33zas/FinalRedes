@@ -12,27 +12,21 @@ public class CharFA : MonoBehaviourPun
     int currentGunIndex = 0;
     //stats
     public int maxHP;
+    [SerializeField]
     int _currHP;
     public float maxSpeed;
-    float _currSpeed;   
+    float _currSpeed;
+    bool dead;
+    public float timeToRespawn;
+    float _currTimeToRespawn;
     //unity
     Rigidbody2D _RB;
     Animator _AN;
     CharInput _input;
     public CharInput inputPF;
-    LocalUI _UI;
-    public LocalUI MyUI
-    {
-        get
-        {
-            return _UI;
-        }
-        set
-        {
-            _UI = value;
-        }
-    }
-    CharFA lastDamager;
+    public Player PL;
+    Player lastDamager;
+
     //misc
     public int _score = 0;
     bool _isControllable;
@@ -63,20 +57,39 @@ public class CharFA : MonoBehaviourPun
         _AN = GetComponentInChildren<Animator>();
         #endregion
 
-        #region incializo las armas
-        foreach (var gun in Guns)
-        {
-            gun.gameObject.SetActive(false);
-            gun.owner = this;
-        }
-        currentGun = Guns[currentGunIndex];
-        currentGun.gameObject.SetActive(true);
-        #endregion
 
         _currSpeed = maxSpeed;
         _currHP = maxHP;
         _isControllable = true;
+        _currTimeToRespawn = timeToRespawn;
     }
+    private void Start()
+    {
+        #region incializo las armas
+        foreach (var gun in Guns)
+        {
+            gun.gameObject.SetActive(false);
+        }
+        currentGun = Guns[currentGunIndex];
+        currentGun.gameObject.SetActive(true);
+        #endregion
+        
+    }
+    IEnumerator Tick()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(ServerCustom.TickRate);
+            if (dead)
+            {
+                HasControl = false;
+                _currTimeToRespawn -= Time.deltaTime;
+                if (_currTimeToRespawn <= 0)
+                    Respawn();
+            }
+        }   
+    }
+
     public void Move(Vector2 dir)
     {
         transform.position += new Vector3(dir.x, dir.y, transform.position.z) * maxSpeed * Time.deltaTime;
@@ -87,9 +100,9 @@ public class CharFA : MonoBehaviourPun
         transform.up = v3;
     }
 
-    public void Shoot()
+    public void Shoot(Player PL)
     {
-        if(currentGun.Shoot())
+        if(currentGun.Shoot(PL))
         {
             _AN.SetInteger("GunIndex", currentGunIndex);
             _AN.SetTrigger("Shoot");
@@ -101,26 +114,27 @@ public class CharFA : MonoBehaviourPun
         _AN.SetBool("Reloading", true);
         StartCoroutine(currentGun.Reload());
     }
+
     public void EndReload()
     {
         _AN.SetBool("Reloading", false);
     }
 
-    public IEnumerator Die()
+    public void Die()
     {
         _AN.SetBool("Dead", true);
         HasControl = false;
+        dead = true;
+        Debug.LogError(name + " was KILLED by " + lastDamager.NickName);
         _score -= 20;
         if (_score < 0)
             _score = 0;
-        yield return new WaitForSeconds(5);
-        ServerCustom.server.RequestSpawnPL(this, GameManager.GM.GetRandomPLSpawnPosition());
-        HasControl = true;
     }
 
     public void Respawn()
     {
-
+        ServerCustom.server.RequestSpawnPL(this, GameManager.GM.GetRandomPLSpawnPosition());
+        _isControllable = true;
     }
 
     public void ChangeWPN()
@@ -134,17 +148,18 @@ public class CharFA : MonoBehaviourPun
         currentGun = Guns[currentGunIndex];
     }
 
-    public void TakeDMG(int D)
+    public void TakeDMG(int D, Player hitter)
     {
         _currHP -= D;
-        if(_currHP<=0)
+        lastDamager = hitter;
+        Debug.LogError(name + " took damage from " + hitter.NickName);
+        if (_currHP<=0)
             ServerCustom.server.RequestDie(PhotonNetwork.LocalPlayer, lastDamager);
     }
 
-    public void ReceiveDamage(int DMG, CharFA damager)
+    public void ReceiveDamage(int DMG, Player damager)
     {
-        ServerCustom.server.RequestPlayerDMG(PhotonNetwork.LocalPlayer, DMG);
-        lastDamager = damager;
+        ServerCustom.server.RequestPlayerDMG(PhotonNetwork.LocalPlayer, damager, DMG);
     }
 
     public void SpawnIn(Vector3 position)
@@ -161,8 +176,7 @@ public class CharFA : MonoBehaviourPun
         _score += pointsAdded;
         if(_score > GameManager.GM.winningScore)
         {
-            //ServerCustom.server.requestWin()
-            Debug.LogError(PhotonNetwork.LocalPlayer.NickName + " is the winner!");
+            //ServerCustom.server.requestWin();
         }
     }
 }

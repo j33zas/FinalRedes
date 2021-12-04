@@ -29,7 +29,7 @@ public class CharInput : MonoBehaviourPun
     
     IEnumerator Tick()
     {
-        while(true)
+        while(_me.HasControl)
         {
             yield return new WaitForSeconds(ServerCustom.TickRate);
             moveDirx = Input.GetAxis("Horizontal");
@@ -37,15 +37,15 @@ public class CharInput : MonoBehaviourPun
             moveDir = new Vector2(moveDirx, moveDiry);
             mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3 lookDir = new Vector2(_me.transform.position.x, _me.transform.position.y) - mousePos;
-            if (_me.HasControl)
-            {
-                ServerCustom.server.RequestMove(PhotonNetwork.LocalPlayer, moveDir);
-                ServerCustom.server.RequestLook(PhotonNetwork.LocalPlayer, lookDir);
-                if (Input.GetMouseButton(0))//m1 apretado
-                    ServerCustom.server.RequestShoot(PhotonNetwork.LocalPlayer);
-                if (Input.GetKeyDown(KeyCode.R))
-                    ServerCustom.server.RequestReload(PhotonNetwork.LocalPlayer);
-            }
+
+            ServerCustom.server.RequestMove(PhotonNetwork.LocalPlayer, moveDir);
+            ServerCustom.server.RequestLook(PhotonNetwork.LocalPlayer, lookDir);
+
+            if (Input.GetMouseButton(0))//m1 apretado
+                ServerCustom.server.RequestShoot(PhotonNetwork.LocalPlayer);
+
+            if (Input.GetKeyDown(KeyCode.R))
+                ServerCustom.server.RequestReload(PhotonNetwork.LocalPlayer);
         }
     }
 }

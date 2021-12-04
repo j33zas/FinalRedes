@@ -18,6 +18,7 @@ public class GunFA : MonoBehaviourPun
     public Transform shootPos;
     public BulletFA bullet;
     public CharFA owner;
+    public Player ownerPL;
 
     private void Start()
     {
@@ -42,14 +43,18 @@ public class GunFA : MonoBehaviourPun
         }
     }
 
-    public bool Shoot()
+    public bool Shoot(Player PLOwnerFromServer)
     {
+        if (PLOwnerFromServer == null)
+            Debug.LogError("No PL owner");
+
         if(_canShoot && _currAmmo > 0 && !_reloading && PhotonNetwork.IsMasterClient)
         {
             Vector3 recoilV = new Vector3(0, 0, Random.Range(-recoil, recoil));
             BulletFA B = PhotonNetwork.Instantiate(bullet.name, shootPos.position, shootPos.rotation).GetComponent<BulletFA>();
             B.transform.Rotate(recoilV);
             B.OwnerCharacter = owner;
+            B.OwnerPL = PLOwnerFromServer;
             _canShoot = false;
             _currAmmo--;
             return true;

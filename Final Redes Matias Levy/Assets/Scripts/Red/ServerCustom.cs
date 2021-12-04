@@ -12,6 +12,7 @@ public class ServerCustom : MonoBehaviourPun
     public static ServerCustom server;
     public CharFA charControllerPF;
     public CharInput charInputPF;
+    public LocalUI UIPF;
     Player _serverPL;
     Dictionary<Player, CharFA> PLToCharFA = new Dictionary<Player, CharFA>();
     Dictionary<CharFA, Player> CharFAToPL = new Dictionary<CharFA, Player>();
@@ -49,6 +50,7 @@ public class ServerCustom : MonoBehaviourPun
         CharFA charInstance = PhotonNetwork.Instantiate(charControllerPF.name, Vector3.zero, Quaternion.identity).GetComponent<CharFA>();
         PLToCharFA.Add(PL, charInstance);
         CharFAToPL.Add(charInstance, PL);
+        charInstance.gameObject.name = PL.NickName + " controller";
         if (PLToCharFA.Count >= 1 && !allPLin)//cambiar a 4 para cumplir
         {
             if (LobbyManager.lobby != null)
@@ -76,14 +78,6 @@ public class ServerCustom : MonoBehaviourPun
     {
         if (_serverPL != null)
             return _serverPL;
-        else
-            return null;
-    }
-
-    public Player GetMyPL(CharFA input)
-    {
-        if (CharFAToPL.ContainsKey(input))
-            return CharFAToPL[input];
         else
             return null;
     }
@@ -160,37 +154,37 @@ public class ServerCustom : MonoBehaviourPun
     void ShootPL(Player PL)
     {
         if (PLToCharFA.ContainsKey(PL))
-            PLToCharFA[PL].Shoot();
+            PLToCharFA[PL].Shoot(PL);
     }
     #endregion
 
     #region player Hit
-    public void RequestPlayerDMG(Player PL, int DMG)
+    public void RequestPlayerDMG(Player PL, Player hitter, int DMG)
     {
-        photonView.RPC("PlayerDMG", _serverPL, PL, DMG);
+        photonView.RPC("PlayerDMG", _serverPL, PL, hitter, DMG);
     }
 
     [PunRPC]
-    void PlayerDMG(Player PL, int DMG)
+    void PlayerDMG(Player PL, Player hitter,int DMG)
     {
         if (PLToCharFA.ContainsKey(PL))
-            PLToCharFA[PL].TakeDMG(DMG);
+            PLToCharFA[PL].TakeDMG(DMG, hitter);
     }
     #endregion
 
     #region Player Die
-    public void RequestDie(Player PL, CharFA PLKL)
+    public void RequestDie(Player PL, Player lastDamager)
     {
-        var Temp = CharFAToPL[PLKL];
-        photonView.RPC("PlayerDie", _serverPL, PL, Temp);
+        photonView.RPC("PlayerDie", _serverPL, PL, lastDamager);
     }
+
     [PunRPC]
     void PlayerDie(Player PL, Player killer)
     {
         if (PLToCharFA.ContainsKey(PL))
-            StartCoroutine(PLToCharFA[PL].Die());
-        if (PLToCharFA.ContainsKey(killer))
-            PLToCharFA[killer].Score(50);
+            PLToCharFA[PL].Die();
+        //if (PLToCharFA.ContainsKey(killer))//killer es null
+        //    PLToCharFA[killer].Score(50);
     }
     #endregion
 
@@ -219,4 +213,20 @@ public class ServerCustom : MonoBehaviourPun
             PLToCharFA[PL].Reload();    
     }
     #endregion
+
+    //public void SpawnGUI()
+    //{
+    //    foreach (var item in PLToCharFA)
+    //    {
+    //        photonView.RPC("RPCSpawnGUI", item.Key, item.Key);
+    //    }
+    //}
+    //[PunRPC]
+    //void RPCSpawnGUI(Player PL)
+    //{
+    //    CharFA myChar = PLToCharFA[PL];
+    //    LocalUI UI= Instantiate(UIPF, Vector3.zero, Quaternion.identity);
+    //    myChar.MyUI = UI;
+    //}
+
 }
