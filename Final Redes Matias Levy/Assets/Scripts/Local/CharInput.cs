@@ -38,14 +38,14 @@ public class CharInput : MonoBehaviourPun
             mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3 lookDir = new Vector2(_me.transform.position.x, _me.transform.position.y) - mousePos;
 
-            ServerCustom.server.RequestMove(_me, moveDir);
-            ServerCustom.server.RequestLook(_me, lookDir);
+            ServerCustom.server.RequestMove(PhotonNetwork.LocalPlayer, moveDir);
+            ServerCustom.server.RequestLook(PhotonNetwork.LocalPlayer, lookDir);
 
             if (Input.GetMouseButton(0))//m1 apretado
-                ServerCustom.server.RequestShoot(_me);
+                ServerCustom.server.RequestShoot(PhotonNetwork.LocalPlayer);
 
             if (Input.GetKeyDown(KeyCode.R))
-                ServerCustom.server.RequestReload(_me);
+                ServerCustom.server.RequestReload(PhotonNetwork.LocalPlayer);
         }
     }
 }

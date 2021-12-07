@@ -44,9 +44,6 @@ public class GunFA : MonoBehaviourPun
 
     public bool Shoot()
     {
-        if (!photonView.IsMine)
-            return false;
-
         if(_canShoot && _currAmmo > 0 && !_reloading && PhotonNetwork.IsMasterClient)
         {
             Vector3 recoilV = new Vector3(0, 0, Random.Range(-recoil, recoil));

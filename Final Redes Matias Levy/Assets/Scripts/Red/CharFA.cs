@@ -22,6 +22,7 @@ public class CharFA : MonoBehaviourPun
     //unity
     Rigidbody2D _RB;
     Animator _AN;
+    Collider _COLL;
     CharInput _input;
     public CharInput inputPF;
     public Player PL;
@@ -55,6 +56,7 @@ public class CharFA : MonoBehaviourPun
         #region GetComponents
         _RB = GetComponent<Rigidbody2D>();
         _AN = GetComponentInChildren<Animator>();
+        _COLL = GetComponent<Collider>();
         #endregion
 
         _currSpeed = maxSpeed;
@@ -74,18 +76,15 @@ public class CharFA : MonoBehaviourPun
         #endregion
         
     }
-    IEnumerator Tick()
+    IEnumerator RespawnTimer()
     {
-        while (true)
+        while (dead)
         {
             yield return new WaitForSeconds(ServerCustom.TickRate);
-            if (dead)
-            {
-                HasControl = false;
-                _currTimeToRespawn -= Time.deltaTime;
-                if (_currTimeToRespawn <= 0)
-                    Respawn();
-            }
+            HasControl = false;
+            _currTimeToRespawn -= Time.deltaTime;
+            if (_currTimeToRespawn <= 0)
+                Respawn();
         }   
     }
 
@@ -101,6 +100,9 @@ public class CharFA : MonoBehaviourPun
 
     public void Shoot()
     {
+        if (!photonView.IsMine)
+            return;
+
         if(currentGun.Shoot())
         {
             _AN.SetInteger("GunIndex", currentGunIndex);
@@ -124,15 +126,20 @@ public class CharFA : MonoBehaviourPun
         _AN.SetBool("Dead", true);
         HasControl = false;
         dead = true;
-        _score -= 20;
+        _score -= GameManager.GM.diePenalty;
+        _COLL.enabled = false;
         if (_score < 0)
             _score = 0;
+        StartCoroutine(RespawnTimer());
     }
 
     public void Respawn()
     {
         ServerCustom.server.RequestSpawnPL(this, GameManager.GM.GetRandomPLSpawnPosition());
         _isControllable = true;
+        dead = false;
+        _currTimeToRespawn = timeToRespawn;
+        _COLL.enabled = true;
     }
 
     public void ChangeWPN()
@@ -150,7 +157,6 @@ public class CharFA : MonoBehaviourPun
     {
         _currHP -= D;
         lastDamager = hitter;
-        Debug.LogError(name + " took damage from " + hitter.name);
         if (_currHP<=0)
             ServerCustom.server.RequestDie(this, lastDamager);
     }
@@ -175,6 +181,7 @@ public class CharFA : MonoBehaviourPun
         if(_score > GameManager.GM.winningScore)
         {
             //ServerCustom.server.requestWin();
+            Debug.LogError(name + " IS THE WINNER");
         }
     }
 }

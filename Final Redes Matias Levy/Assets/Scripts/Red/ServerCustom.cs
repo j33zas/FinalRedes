@@ -108,8 +108,10 @@ public class ServerCustom : MonoBehaviourPun
     #region Player spawn    
     public void RequestSpawnPL(CharFA CH, Vector3 pos)
     {
-        if(CharFAToPL.ContainsKey(CH))
+        if (CharFAToPL.ContainsKey(CH))
             photonView.RPC("SpawnPlayerRPC", _serverPL, CharFAToPL[CH], pos);
+        else
+            Debug.LogError("No esta " + CH.name + " en el diccionario");
     }
     [PunRPC]
     void SpawnPlayerRPC(Player PL, Vector3 pos)
@@ -119,41 +121,41 @@ public class ServerCustom : MonoBehaviourPun
     #endregion
 
     #region Player move
-    public void RequestMove(CharFA CH, Vector2 dir)
+    public void RequestMove(Player PL, Vector2 dir)
     {
-        if (CharFAToPL.ContainsKey(CH))
-            photonView.RPC("MovePL", _serverPL, CharFAToPL[CH], dir);
+        photonView.RPC("MovePL", _serverPL, PL, dir);
     }
     [PunRPC]
     void MovePL(Player PL, Vector2 dir)
     {
-        PLToCharFA[PL].Move(dir);
+        if(PLToCharFA.ContainsKey(PL))
+            PLToCharFA[PL].Move(dir);
     }
     #endregion
 
     #region Player look
-    public void RequestLook(CharFA CH, Vector3 v3)
+    public void RequestLook(Player PL, Vector3 v3)
     {
-        if (CharFAToPL.ContainsKey(CH))
-            photonView.RPC("LookPL", _serverPL, CharFAToPL[CH], v3);
+        photonView.RPC("LookPL", _serverPL, PL, v3);
     }
     [PunRPC]
     void LookPL(Player PL, Vector3 v3)
     {
-        PLToCharFA[PL].Look(v3);
+        if (PLToCharFA.ContainsKey(PL))
+            PLToCharFA[PL].Look(v3);
     }
     #endregion
 
     #region Player shoot
-    public void RequestShoot(CharFA CH)
+    public void RequestShoot(Player PL)
     {
-        if(CharFAToPL.ContainsKey(CH))
-            photonView.RPC("ShootPL", _serverPL, CharFAToPL[CH]);
+        photonView.RPC("ShootPL", _serverPL, PL);
     }
     [PunRPC]
     void ShootPL(Player PL)
     {
-        PLToCharFA[PL].Shoot();
+        if(PLToCharFA.ContainsKey(PL))
+            PLToCharFA[PL].Shoot();
     }
     #endregion
 
@@ -161,7 +163,7 @@ public class ServerCustom : MonoBehaviourPun
     public void RequestPlayerDMG(CharFA CharHit, CharFA CharHitter, int DMG)
     {
         if(CharFAToPL.ContainsKey(CharHit) && CharFAToPL.ContainsKey(CharHitter))
-            photonView.RPC("PlayerDMG", _serverPL, CharFAToPL[CharHit], CharFAToPL[CharHitter], DMG);
+            photonView.RPC("PlayerDMG", _serverPL, CharFAToPL[CharHitter], CharFAToPL[CharHit], DMG);
     }
 
     [PunRPC]
@@ -174,7 +176,7 @@ public class ServerCustom : MonoBehaviourPun
     #region Player Die
     public void RequestDie(CharFA CH, CharFA CHHitter)
     {
-        if (CharFAToPL.ContainsKey(CH) && CharFAToPL.ContainsKey(CHHitter))
+        //if (CharFAToPL.ContainsKey(CH) && CharFAToPL.ContainsKey(CHHitter))
             photonView.RPC("PlayerDie", _serverPL, CharFAToPL[CH], CharFAToPL[CHHitter]);
     }
 
@@ -182,7 +184,7 @@ public class ServerCustom : MonoBehaviourPun
     void PlayerDie(Player PL, Player PLk)
     {
         PLToCharFA[PL].Die();
-        PLToCharFA[PLk].Score(50);
+        PLToCharFA[PLk].Score(GameManager.GM.killPoints);
     }
     #endregion
 
@@ -200,10 +202,9 @@ public class ServerCustom : MonoBehaviourPun
     #endregion
 
     #region Player Reload Weapon
-    public void RequestReload(CharFA CH)
+    public void RequestReload(Player PL)
     {
-        if(CharFAToPL.ContainsKey(CH))
-            photonView.RPC("ReloadRPC", _serverPL, CharFAToPL[CH]);
+        photonView.RPC("ReloadRPC", _serverPL, PL);
     }
     [PunRPC]
     void ReloadRPC(Player PL)

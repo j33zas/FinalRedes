@@ -76,7 +76,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DMG: 8
   Speed: 20
-  Life: 1
+  Owner: {fileID: 0}
 --- !u!114 &7685310665492630897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -329,7 +329,7 @@ TrailRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Time: 0.2
   m_Parameters:
     serializedVersion: 3

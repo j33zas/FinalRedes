@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
     CharFA[] controllers;
     public float cherckerArea;
     public int winningScore = 300;
+    public int killPoints = 50;
+    public int diePenalty = 20;
     static GameManager _GM;
     public static GameManager GM
     {
