@@ -76,7 +76,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DMG: 15
   Speed: 20
-  OwnerCharacter: {fileID: 0}
+  Owner: {fileID: 0}
 --- !u!114 &7685310665492630897
 MonoBehaviour:
   m_ObjectHideFlags: 0

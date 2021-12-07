@@ -8,8 +8,7 @@ public class BulletFA : MonoBehaviourPun
 {
     public int DMG;
     public float Speed;
-    public CharFA OwnerCharacter;
-    public Player OwnerPL;
+    public CharFA Owner;
 
     private void Start()
     {
@@ -27,9 +26,8 @@ public class BulletFA : MonoBehaviourPun
     private void OnTriggerEnter2D(Collider2D coll)
     {
         CharFA C = coll.gameObject.GetComponent<CharFA>();
-        Player PL = coll.gameObject.GetComponent<Player>();
-        if (C != OwnerCharacter && C && PL != null)
-            ServerCustom.server.RequestPlayerDMG(PL, OwnerPL, DMG);
+        if (C != Owner && C)
+            ServerCustom.server.RequestPlayerDMG(Owner, C, DMG);
         ServerCustom.server.DestroyMe(gameObject);
     }
 }

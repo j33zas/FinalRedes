@@ -25,7 +25,7 @@ public class CharFA : MonoBehaviourPun
     CharInput _input;
     public CharInput inputPF;
     public Player PL;
-    Player lastDamager;
+    CharFA lastDamager;
 
     //misc
     public int _score = 0;
@@ -56,7 +56,6 @@ public class CharFA : MonoBehaviourPun
         _RB = GetComponent<Rigidbody2D>();
         _AN = GetComponentInChildren<Animator>();
         #endregion
-
 
         _currSpeed = maxSpeed;
         _currHP = maxHP;
@@ -100,9 +99,9 @@ public class CharFA : MonoBehaviourPun
         transform.up = v3;
     }
 
-    public void Shoot(Player PL)
+    public void Shoot()
     {
-        if(currentGun.Shoot(PL))
+        if(currentGun.Shoot())
         {
             _AN.SetInteger("GunIndex", currentGunIndex);
             _AN.SetTrigger("Shoot");
@@ -125,7 +124,6 @@ public class CharFA : MonoBehaviourPun
         _AN.SetBool("Dead", true);
         HasControl = false;
         dead = true;
-        Debug.LogError(name + " was KILLED by " + lastDamager.NickName);
         _score -= 20;
         if (_score < 0)
             _score = 0;
@@ -148,18 +146,18 @@ public class CharFA : MonoBehaviourPun
         currentGun = Guns[currentGunIndex];
     }
 
-    public void TakeDMG(int D, Player hitter)
+    public void TakeDMG(int D, CharFA hitter)
     {
         _currHP -= D;
         lastDamager = hitter;
-        Debug.LogError(name + " took damage from " + hitter.NickName);
+        Debug.LogError(name + " took damage from " + hitter.name);
         if (_currHP<=0)
-            ServerCustom.server.RequestDie(PhotonNetwork.LocalPlayer, lastDamager);
+            ServerCustom.server.RequestDie(this, lastDamager);
     }
 
-    public void ReceiveDamage(int DMG, Player damager)
+    public void ReceiveDamage(int DMG, CharFA damager)
     {
-        ServerCustom.server.RequestPlayerDMG(PhotonNetwork.LocalPlayer, damager, DMG);
+        ServerCustom.server.RequestPlayerDMG(this, damager, DMG);
     }
 
     public void SpawnIn(Vector3 position)

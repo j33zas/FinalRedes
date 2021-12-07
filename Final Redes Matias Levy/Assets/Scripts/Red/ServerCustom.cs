@@ -106,85 +106,83 @@ public class ServerCustom : MonoBehaviourPun
     #endregion
 
     #region Player spawn    
-    public void RequestSpawnPL(CharFA FA, Vector3 pos)
+    public void RequestSpawnPL(CharFA CH, Vector3 pos)
     {
-        Player PL = CharFAToPL[FA];
-        photonView.RPC("SpawnPlayerRPC", _serverPL, PL, pos);
+        if(CharFAToPL.ContainsKey(CH))
+            photonView.RPC("SpawnPlayerRPC", _serverPL, CharFAToPL[CH], pos);
     }
     [PunRPC]
     void SpawnPlayerRPC(Player PL, Vector3 pos)
     {
-        if (PLToCharFA.ContainsKey(PL))
-            PLToCharFA[PL].SpawnIn(pos);
+        PLToCharFA[PL].SpawnIn(pos);
     }
     #endregion
 
     #region Player move
-    public void RequestMove(Player PL, Vector2 dir)
+    public void RequestMove(CharFA CH, Vector2 dir)
     {
-        photonView.RPC("MovePL", _serverPL, PL, dir);
+        if (CharFAToPL.ContainsKey(CH))
+            photonView.RPC("MovePL", _serverPL, CharFAToPL[CH], dir);
     }
     [PunRPC]
     void MovePL(Player PL, Vector2 dir)
     {
-        if (PLToCharFA.ContainsKey(PL))
-            PLToCharFA[PL].Move(dir);
+        PLToCharFA[PL].Move(dir);
     }
     #endregion
 
     #region Player look
-    public void RequestLook(Player PL, Vector3 v3)
+    public void RequestLook(CharFA CH, Vector3 v3)
     {
-        photonView.RPC("LookPL", _serverPL, PL, v3);
+        if (CharFAToPL.ContainsKey(CH))
+            photonView.RPC("LookPL", _serverPL, CharFAToPL[CH], v3);
     }
     [PunRPC]
     void LookPL(Player PL, Vector3 v3)
     {
-        if (PLToCharFA.ContainsKey(PL))
-            PLToCharFA[PL].Look(v3);
+        PLToCharFA[PL].Look(v3);
     }
     #endregion
 
     #region Player shoot
-    public void RequestShoot(Player PL)
+    public void RequestShoot(CharFA CH)
     {
-        photonView.RPC("ShootPL", _serverPL, PL);
+        if(CharFAToPL.ContainsKey(CH))
+            photonView.RPC("ShootPL", _serverPL, CharFAToPL[CH]);
     }
     [PunRPC]
     void ShootPL(Player PL)
     {
-        if (PLToCharFA.ContainsKey(PL))
-            PLToCharFA[PL].Shoot(PL);
+        PLToCharFA[PL].Shoot();
     }
     #endregion
 
-    #region player Hit
-    public void RequestPlayerDMG(Player PL, Player hitter, int DMG)
+    #region player Damage
+    public void RequestPlayerDMG(CharFA CharHit, CharFA CharHitter, int DMG)
     {
-        photonView.RPC("PlayerDMG", _serverPL, PL, hitter, DMG);
+        if(CharFAToPL.ContainsKey(CharHit) && CharFAToPL.ContainsKey(CharHitter))
+            photonView.RPC("PlayerDMG", _serverPL, CharFAToPL[CharHit], CharFAToPL[CharHitter], DMG);
     }
 
     [PunRPC]
     void PlayerDMG(Player PL, Player hitter,int DMG)
     {
-        if (PLToCharFA.ContainsKey(PL))
-            PLToCharFA[PL].TakeDMG(DMG, hitter);
+        PLToCharFA[PL].TakeDMG(DMG, PLToCharFA[hitter]);
     }
     #endregion
 
     #region Player Die
-    public void RequestDie(Player PL, Player lastDamager)
+    public void RequestDie(CharFA CH, CharFA CHHitter)
     {
-        photonView.RPC("PlayerDie", _serverPL, PL, lastDamager);
+        if (CharFAToPL.ContainsKey(CH) && CharFAToPL.ContainsKey(CHHitter))
+            photonView.RPC("PlayerDie", _serverPL, CharFAToPL[CH], CharFAToPL[CHHitter]);
     }
 
     [PunRPC]
-    void PlayerDie(Player PL, Player killer)
+    void PlayerDie(Player PL, Player PLk)
     {
-        if (PLToCharFA.ContainsKey(PL))
-            PLToCharFA[PL].Die();
-        //if (PLToCharFA.ContainsKey(killer))//killer es null
-        //    PLToCharFA[killer].Score(50);
+        PLToCharFA[PL].Die();
+        PLToCharFA[PLk].Score(50);
     }
     #endregion
 
@@ -202,15 +200,15 @@ public class ServerCustom : MonoBehaviourPun
     #endregion
 
     #region Player Reload Weapon
-    public void RequestReload(Player PL)
+    public void RequestReload(CharFA CH)
     {
-        photonView.RPC("ReloadRPC", _serverPL, PL);
+        if(CharFAToPL.ContainsKey(CH))
+            photonView.RPC("ReloadRPC", _serverPL, CharFAToPL[CH]);
     }
     [PunRPC]
     void ReloadRPC(Player PL)
     {
-        if (PLToCharFA.ContainsKey(PL))
-            PLToCharFA[PL].Reload();    
+        PLToCharFA[PL].Reload();    
     }
     #endregion
 
