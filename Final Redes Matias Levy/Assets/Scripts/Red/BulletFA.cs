@@ -26,8 +26,15 @@ public class BulletFA : MonoBehaviourPun
     private void OnTriggerEnter2D(Collider2D coll)
     {
         CharFA C = coll.gameObject.GetComponent<CharFA>();
-        if (C != Owner && C)
-            ServerCustom.server.RequestPlayerDMG(Owner, C, DMG);
-        ServerCustom.server.DestroyMe(gameObject);
+        if (C)
+        {
+            if(C != Owner && !C.dead)
+            {
+                ServerCustom.server.RequestPlayerDMG(C, Owner, DMG);
+                ServerCustom.server.DestroyMe(gameObject);
+            }
+        }
+        else
+            ServerCustom.server.DestroyMe(gameObject);
     }
 }

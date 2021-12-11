@@ -51,6 +51,8 @@ MonoBehaviour:
   - SpawnUI
   - ReloadRPC
   - RPCSpawnGUI
+  - SpawnInput
+  - UIHealth
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

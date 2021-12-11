@@ -29,12 +29,12 @@ public class CharInput : MonoBehaviourPun
     
     IEnumerator Tick()
     {
-        while(_me.HasControl)
+        while(true)
         {
             yield return new WaitForSeconds(ServerCustom.TickRate);
             moveDirx = Input.GetAxis("Horizontal");
             moveDiry = Input.GetAxis("Vertical");
-            moveDir = new Vector2(moveDirx, moveDiry);
+            moveDir = new Vector2(moveDirx, moveDiry).normalized;
             mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3 lookDir = new Vector2(_me.transform.position.x, _me.transform.position.y) - mousePos;
 

@@ -284,10 +284,10 @@ MonoBehaviour:
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 0
+  Synchronization: 3
   OwnershipTransfer: 0
   ObservedComponents:
-  - {fileID: 0}
+  - {fileID: 8640252350192841268}
   viewIdField: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -479,7 +479,7 @@ MonoBehaviour:
   maxAmmo: 35
   recoil: 0
   reloadTime: 1
-  shootPos: {fileID: 2237246519197322874}
+  shootPos: {fileID: 6499590697399549177}
   bullet: {fileID: 3054893250752478161, guid: 78fb77042870e9f42be400db0167fc1d, type: 3}
   owner: {fileID: 1405203702236498312}
 --- !u!1 &5089655384790818731
@@ -506,7 +506,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5089655384790818731}
   m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
-  m_LocalPosition: {x: 0, y: -1.99, z: 0}
+  m_LocalPosition: {x: 0, y: -2.11, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5495611623504006209}
@@ -722,8 +722,8 @@ MonoBehaviour:
   - {fileID: 8404627443025825970}
   - {fileID: 5903397385319447146}
   maxHP: 100
-  _currHP: 0
-  maxSpeed: 1.8
+  maxSpeed: 2
+  dead: 0
   timeToRespawn: 5
   inputPF: {fileID: 3277927090424214994, guid: 3699ae51aac80744cbabea9cf7a98dac, type: 3}
   _score: 0
@@ -811,9 +811,9 @@ MonoBehaviour:
     ExtrapolateNumberOfStoredPositions: 1
   m_RotationModel:
     SynchronizeEnabled: 1
-    InterpolateOption: 0
+    InterpolateOption: 2
     InterpolateRotateTowardsSpeed: 180
-    InterpolateLerpSpeed: 10
+    InterpolateLerpSpeed: 30
   m_ScaleModel:
     SynchronizeEnabled: 0
     InterpolateOption: 0

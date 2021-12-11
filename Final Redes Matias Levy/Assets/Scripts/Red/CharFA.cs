@@ -12,108 +12,96 @@ public class CharFA : MonoBehaviourPun
     int currentGunIndex = 0;
     //stats
     public int maxHP;
-    [SerializeField]
     int _currHP;
+    public int HP
+    {
+        get
+        {
+            return _currHP;
+        }
+    }
     public float maxSpeed;
     float _currSpeed;
-    bool dead;
+    public bool dead;
     public float timeToRespawn;
     float _currTimeToRespawn;
     //unity
     Rigidbody2D _RB;
     Animator _AN;
-    Collider _COLL;
+    Collider2D _COLL;
     CharInput _input;
     public CharInput inputPF;
-    public Player PL;
     CharFA lastDamager;
-
+    
     //misc
     public int _score = 0;
-    bool _isControllable;
-    public bool HasControl
-    {
-        get
-        {
-            return _isControllable;
-        }
-        set
-        {
-            _isControllable = value;
-        }
-    }
+    bool HasControl = true;
 
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
 
         #region defino input
-        _input = Instantiate(inputPF, Vector3.zero, Quaternion.identity);
-        _input.Controller = this;
-        _input.transform.parent = transform;
+        var temp = FindObjectsOfType<CharInput>();
+        if(temp.Length < 1)
+        {
+            _input = Instantiate(inputPF, Vector3.zero, Quaternion.identity);
+            _input.Controller = this;
+            _input.transform.parent = transform;
+        }
         #endregion
 
         #region GetComponents
         _RB = GetComponent<Rigidbody2D>();
         _AN = GetComponentInChildren<Animator>();
-        _COLL = GetComponent<Collider>();
+        _COLL = GetComponent<Collider2D>();
+        #endregion
+
+        #region incializo las armas
+        foreach (var gun in Guns)
+            gun.gameObject.SetActive(false);
+        currentGun = Guns[currentGunIndex];
+        currentGun.gameObject.SetActive(true);
         #endregion
 
         _currSpeed = maxSpeed;
         _currHP = maxHP;
-        _isControllable = true;
         _currTimeToRespawn = timeToRespawn;
-    }
-    private void Start()
-    {
-        #region incializo las armas
-        foreach (var gun in Guns)
-        {
-            gun.gameObject.SetActive(false);
-        }
-        currentGun = Guns[currentGunIndex];
-        currentGun.gameObject.SetActive(true);
-        #endregion
-        
-    }
-    IEnumerator RespawnTimer()
-    {
-        while (dead)
-        {
-            yield return new WaitForSeconds(ServerCustom.TickRate);
-            HasControl = false;
-            _currTimeToRespawn -= Time.deltaTime;
-            if (_currTimeToRespawn <= 0)
-                Respawn();
-        }   
     }
 
     public void Move(Vector2 dir)
     {
-        transform.position += new Vector3(dir.x, dir.y, transform.position.z) * maxSpeed * Time.deltaTime;
+        if(HasControl)
+            transform.position += new Vector3(dir.x, dir.y, transform.position.z) * maxSpeed * Time.deltaTime;
     }
 
     public void Look(Vector3 v3)
     {
-        transform.up = v3;
+        if(HasControl)
+            transform.up = v3;
     }
 
     public void Shoot()
     {
         if (!photonView.IsMine)
             return;
-
-        if(currentGun.Shoot())
+        if(HasControl)
         {
-            _AN.SetInteger("GunIndex", currentGunIndex);
-            _AN.SetTrigger("Shoot");
+            if(currentGun.Shoot())
+            {
+                _AN.SetInteger("GunIndex", currentGunIndex);
+                _AN.SetTrigger("Shoot");
+            }
         }
     }
 
     public void Reload()
     {
-        _AN.SetBool("Reloading", true);
-        StartCoroutine(currentGun.Reload());
+        if(HasControl)
+        {
+            _AN.SetBool("Reloading", true);
+            StartCoroutine(currentGun.Reload());
+        }
     }
 
     public void EndReload()
@@ -121,25 +109,15 @@ public class CharFA : MonoBehaviourPun
         _AN.SetBool("Reloading", false);
     }
 
-    public void Die()
+    public void Die(int scoreLoss)
     {
         _AN.SetBool("Dead", true);
         HasControl = false;
         dead = true;
-        _score -= GameManager.GM.diePenalty;
-        _COLL.enabled = false;
+        _score -= scoreLoss;
         if (_score < 0)
             _score = 0;
         StartCoroutine(RespawnTimer());
-    }
-
-    public void Respawn()
-    {
-        ServerCustom.server.RequestSpawnPL(this, GameManager.GM.GetRandomPLSpawnPosition());
-        _isControllable = true;
-        dead = false;
-        _currTimeToRespawn = timeToRespawn;
-        _COLL.enabled = true;
     }
 
     public void ChangeWPN()
@@ -153,6 +131,11 @@ public class CharFA : MonoBehaviourPun
         currentGun = Guns[currentGunIndex];
     }
 
+    public void ReceiveDamage(int DMG, CharFA damager)
+    {
+        ServerCustom.server.RequestPlayerDMG(this, damager, DMG);
+    }
+
     public void TakeDMG(int D, CharFA hitter)
     {
         _currHP -= D;
@@ -161,19 +144,36 @@ public class CharFA : MonoBehaviourPun
             ServerCustom.server.RequestDie(this, lastDamager);
     }
 
-    public void ReceiveDamage(int DMG, CharFA damager)
+    #region RESPAWN
+    IEnumerator RespawnTimer()
     {
-        ServerCustom.server.RequestPlayerDMG(this, damager, DMG);
+        while (dead)
+        {
+            yield return new WaitForSeconds(ServerCustom.TickRate);
+            HasControl = false;
+            _currTimeToRespawn -= Time.deltaTime;
+            if (_currTimeToRespawn <= 0)
+                Respawn();
+        }
+    }
+
+    public void Respawn()
+    {
+        ServerCustom.server.RequestSpawnPL(this, GameManager.GM.GetRandomPLSpawnPosition());
     }
 
     public void SpawnIn(Vector3 position)
     {
         transform.position = position;
         _currHP = maxHP;
+        HasControl = true;
+        dead = false;
+        _currTimeToRespawn = timeToRespawn;
         foreach (var gun in Guns)
             gun.Respawn();
         _AN.SetBool("Dead", false);
     }
+    #endregion
 
     public void Score(int pointsAdded)
     {
