@@ -23,7 +23,21 @@ public class LocalUI : MonoBehaviourPun
     public void TakeDMG(float maxHP, float currHP)
     {
         health.fillAmount = currHP / maxHP;
-        while (DMG.fillAmount - health.fillAmount > 0.01f)
+        StartCoroutine(FancyHP());
+    }
+
+    public void ResetHPValues()
+    {
+        health.fillAmount = 1;
+        DMG.fillAmount = 1;
+    }
+
+    IEnumerator FancyHP()
+    {
+        while (DMG.fillAmount - health.fillAmount > 0.001f)
+        {
+            yield return new WaitForSeconds(ServerCustom.TickRate);
             DMG.fillAmount = Mathf.Lerp(DMG.fillAmount, health.fillAmount, Time.deltaTime);
+        }
     }
 }

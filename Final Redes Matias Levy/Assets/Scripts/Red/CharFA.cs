@@ -161,7 +161,7 @@ public class CharFA : MonoBehaviourPun
         dead = false;
         _currTimeToRespawn = timeToRespawn;
         currentGun.Respawn();
-        photonView.RPC("HealthUI", MEPL, _HP, maxHP);
+        photonView.RPC("ResetHP", MEPL, _HP, maxHP);
         _AN.SetBool("Dead", false);
     }
     #endregion
@@ -193,7 +193,6 @@ public class CharFA : MonoBehaviourPun
     [PunRPC]
     void HealthUI(int curr, int max)
     {
-        Debug.Log(curr/max);
         UI.TakeDMG(max, curr);
     }
 
@@ -201,6 +200,11 @@ public class CharFA : MonoBehaviourPun
     void ScoreUI(int score)
     {
         UI.AddScore(score);
+    }
+    [PunRPC]
+    void ResetHP()
+    {
+        UI.ResetHPValues();
     }
     #endregion
 }
