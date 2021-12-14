@@ -53,6 +53,10 @@ MonoBehaviour:
   - RPCSpawnGUI
   - SpawnInput
   - UIHealth
+  - SpawnGUI
+  - HealthUI
+  - RPCInitialize
+  - ScoreUI
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

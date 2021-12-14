@@ -7,27 +7,12 @@ using Photon.Realtime;
 
 public class LocalUI : MonoBehaviourPun
 {
-    [SerializeField]
-    Text score = null;
-    [SerializeField]
-    Image health = null;
-    //[SerializeField]
-    //Image dmgTaken = null;
-    static LocalUI thisUI;
-    public static LocalUI UI
-    {
-        get
-        {
-            return thisUI;
-        }
-        set
-        {
-            thisUI = value;
-        }
-    }
+    public Text score = null;
+    public Image health = null;
+    public Image DMG = null;
     private void Start()
     {
-        UI = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public void AddScore(int points)
@@ -35,17 +20,10 @@ public class LocalUI : MonoBehaviourPun
         score.text = "Score: " + points;
     }
 
-    public void TakeDMG(int currHP, int maxHP)
+    public void TakeDMG(float maxHP, float currHP)
     {
         health.fillAmount = currHP / maxHP;
-        //StartCoroutine(CoolDMG(health.fillAmount));
+        while (DMG.fillAmount - health.fillAmount > 0.01f)
+            DMG.fillAmount = Mathf.Lerp(DMG.fillAmount, health.fillAmount, Time.deltaTime);
     }
-    //IEnumerator CoolDMG(float filltarget)
-    //{
-    //    while(dmgTaken.fillAmount - filltarget >= 0.01f)
-    //    {
-    //        dmgTaken.fillAmount = Mathf.Lerp(dmgTaken.fillAmount, filltarget, Time.deltaTime);
-    //        yield return new WaitForEndOfFrame();
-    //    }
-    //}
 }

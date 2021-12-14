@@ -7,19 +7,12 @@ using Photon.Realtime;
 public class CharFA : MonoBehaviourPun
 {
     //guns
-    public GunFA[] Guns;
-    GunFA currentGun;
+    public GunFA currentGun;
     int currentGunIndex = 0;
     //stats
     public int maxHP;
-    int _currHP;
-    public int HP
-    {
-        get
-        {
-            return _currHP;
-        }
-    }
+    [SerializeField]
+    int _HP;
     public float maxSpeed;
     float _currSpeed;
     public bool dead;
@@ -32,7 +25,9 @@ public class CharFA : MonoBehaviourPun
     CharInput _input;
     public CharInput inputPF;
     CharFA lastDamager;
-    
+    public LocalUI UIPF;
+    LocalUI UI;
+    Player MEPL;
     //misc
     public int _score = 0;
     bool HasControl = true;
@@ -57,15 +52,9 @@ public class CharFA : MonoBehaviourPun
         _COLL = GetComponent<Collider2D>();
         #endregion
 
-        #region incializo las armas
-        foreach (var gun in Guns)
-            gun.gameObject.SetActive(false);
-        currentGun = Guns[currentGunIndex];
-        currentGun.gameObject.SetActive(true);
-        #endregion
-
+        currentGun.Respawn();
         _currSpeed = maxSpeed;
-        _currHP = maxHP;
+        _HP = maxHP;
         _currTimeToRespawn = timeToRespawn;
     }
 
@@ -115,21 +104,22 @@ public class CharFA : MonoBehaviourPun
         HasControl = false;
         dead = true;
         _score -= scoreLoss;
+        photonView.RPC("ScoreUI", MEPL, _score);
         if (_score < 0)
             _score = 0;
         StartCoroutine(RespawnTimer());
     }
 
-    public void ChangeWPN()
-    {
-        Guns[currentGunIndex].gameObject.SetActive(false);
-        currentGunIndex++;
-        if (currentGunIndex > Guns.Length - 1)
-            currentGunIndex = 0;
+    //public void ChangeWPN()
+    //{
+    //    Guns[currentGunIndex].gameObject.SetActive(false);
+    //    currentGunIndex++;
+    //    if (currentGunIndex > Guns.Length - 1)
+    //        currentGunIndex = 0;
 
-        Guns[currentGunIndex].gameObject.SetActive(true);
-        currentGun = Guns[currentGunIndex];
-    }
+    //    Guns[currentGunIndex].gameObject.SetActive(true);
+    //    currentGun = Guns[currentGunIndex];
+    //}
 
     public void ReceiveDamage(int DMG, CharFA damager)
     {
@@ -138,9 +128,10 @@ public class CharFA : MonoBehaviourPun
 
     public void TakeDMG(int D, CharFA hitter)
     {
-        _currHP -= D;
+        _HP -= D;
+        photonView.RPC("HealthUI", MEPL, _HP, maxHP);
         lastDamager = hitter;
-        if (_currHP<=0)
+        if (_HP<=0)
             ServerCustom.server.RequestDie(this, lastDamager);
     }
 
@@ -165,12 +156,12 @@ public class CharFA : MonoBehaviourPun
     public void SpawnIn(Vector3 position)
     {
         transform.position = position;
-        _currHP = maxHP;
+        _HP = maxHP;
         HasControl = true;
         dead = false;
         _currTimeToRespawn = timeToRespawn;
-        foreach (var gun in Guns)
-            gun.Respawn();
+        currentGun.Respawn();
+        photonView.RPC("HealthUI", MEPL, _HP, maxHP);
         _AN.SetBool("Dead", false);
     }
     #endregion
@@ -178,10 +169,38 @@ public class CharFA : MonoBehaviourPun
     public void Score(int pointsAdded)
     {
         _score += pointsAdded;
+        photonView.RPC("ScoreUI", MEPL, _score);
         if(_score > GameManager.GM.winningScore)
         {
             //ServerCustom.server.requestWin();
             Debug.LogError(name + " IS THE WINNER");
         }
     }
+
+    public void Initialize(Player target)
+    {
+        photonView.RPC("RPCInitialize", target);
+        MEPL = target;
+    }
+    #region UI local RPCs
+    [PunRPC]
+    void RPCInitialize()
+    {
+        UI = Instantiate(UIPF, Vector3.zero, Quaternion.identity);
+        _HP = maxHP;
+    }
+
+    [PunRPC]
+    void HealthUI(int curr, int max)
+    {
+        Debug.Log(curr/max);
+        UI.TakeDMG(max, curr);
+    }
+
+    [PunRPC]
+    void ScoreUI(int score)
+    {
+        UI.AddScore(score);
+    }
+    #endregion
 }

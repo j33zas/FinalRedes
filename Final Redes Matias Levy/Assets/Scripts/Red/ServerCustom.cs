@@ -11,8 +11,6 @@ public class ServerCustom : MonoBehaviourPun
     //server stuff
     public static ServerCustom server;
     public CharFA charControllerPF;
-    public LocalUI UIPF;
-    LocalUI _characterUI;
     Player _serverPL;
     Dictionary<Player, CharFA> PLToCharFA = new Dictionary<Player, CharFA>();
     Dictionary<CharFA, Player> CharFAToPL = new Dictionary<CharFA, Player>();
@@ -30,10 +28,9 @@ public class ServerCustom : MonoBehaviourPun
     {
         DontDestroyOnLoad(gameObject);
         allPLin = false;
-        _characterUI = Instantiate(UIPF, Vector3.zero, Quaternion.identity);
-        _characterUI.gameObject.SetActive(false);
         if (server == null && photonView.IsMine)
             photonView.RPC("SetServer", RpcTarget.AllBuffered, PhotonNetwork.LocalPlayer);
+
     }
 
     [PunRPC]
@@ -62,6 +59,8 @@ public class ServerCustom : MonoBehaviourPun
     public void StartLevel()
     {
         photonView.RPC("LoadLevel", RpcTarget.AllBuffered);
+        foreach (var PL_CHpair in PLToCharFA)
+            PL_CHpair.Value.Initialize(PL_CHpair.Key);
     }
     [PunRPC]
     void LoadLevel()
@@ -109,8 +108,6 @@ public class ServerCustom : MonoBehaviourPun
     {
         if (CharFAToPL.ContainsKey(CH))
             photonView.RPC("SpawnPlayerRPC", _serverPL, CharFAToPL[CH], pos);
-        if(_serverPL != PhotonNetwork.LocalPlayer)
-            _characterUI.gameObject.SetActive(true);
     }
     [PunRPC]
     void SpawnPlayerRPC(Player PL, Vector3 pos)
@@ -162,18 +159,16 @@ public class ServerCustom : MonoBehaviourPun
     public void RequestPlayerDMG(CharFA CharHit, CharFA CharHitter, int DMG)
     {
         if (CharFAToPL.ContainsKey(CharHit) && CharFAToPL.ContainsKey(CharHitter))
-            photonView.RPC("PlayerDMG", _serverPL, CharHit, CharFAToPL[CharHitter], DMG);
-        if(CharFAToPL.ContainsKey(CharHit) && _serverPL != PhotonNetwork.LocalPlayer)
         {
-            Player PL = CharFAToPL[CharHit];
-            photonView.RPC("UIHealth", PL, CharHit.HP, CharHit.maxHP);
+            photonView.RPC("PlayerDMG", _serverPL, CharFAToPL[CharHit], CharFAToPL[CharHitter], DMG);
         }
     }
 
     [PunRPC]
-    void PlayerDMG(CharFA DmgReceiver, Player hitter, int DMG)
+    void PlayerDMG(Player DmgReceiver, Player hitter, int DMG)
     {
-        DmgReceiver.TakeDMG(DMG, PLToCharFA[hitter]);
+        if(PLToCharFA.ContainsKey(DmgReceiver) && PLToCharFA.ContainsKey(hitter))
+            PLToCharFA[DmgReceiver].TakeDMG(DMG, PLToCharFA[hitter]);
     }
     #endregion
 
@@ -187,25 +182,22 @@ public class ServerCustom : MonoBehaviourPun
     [PunRPC]
     void PlayerDie(Player PL, Player PLk)
     {
-        if(photonView.IsMine)
-        {
-            PLToCharFA[PL].Die(GameManager.GM.diePenalty);
-            //PLToCharFA[PLk].Score(GameManager.GM.killPoints);
-        }
+        PLToCharFA[PL].Die(GameManager.GM.diePenalty);
+        PLToCharFA[PLk].Score(GameManager.GM.killPoints);
     }
     #endregion
 
     #region Player Change Weapon
-    public void RequestChangeWPN(Player PL)
-    {
-        photonView.RPC("ChangeWPN", _serverPL, PL);
-    }
-    [PunRPC]
-    void ChangeWPN(Player PL)
-    {
-        if (PLToCharFA.ContainsKey(PL))
-            PLToCharFA[PL].ChangeWPN();
-    }
+    //public void RequestChangeWPN(Player PL)
+    //{
+    //    photonView.RPC("ChangeWPN", _serverPL, PL);
+    //}
+    //[PunRPC]
+    //void ChangeWPN(Player PL)
+    //{
+    //    if (PLToCharFA.ContainsKey(PL) && photonView.IsMine)
+    ////        PLToCharFA[PL].ChangeWPN();
+    ////}
     #endregion
 
     #region Player Reload Weapon
@@ -219,11 +211,4 @@ public class ServerCustom : MonoBehaviourPun
         PLToCharFA[PL].Reload();    
     }
     #endregion
-
-    [PunRPC]
-    void UIHealth(int curr, int max)
-    {
-        if(_characterUI)
-            _characterUI.TakeDMG(curr, max);
-    }
 }

@@ -47,7 +47,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   charControllerPF: {fileID: 1405203702236498312, guid: e93662b612e795b418bd8f02e2b4a448,
     type: 3}
-  UIPF: {fileID: 4787075197410431014, guid: 8b83b51d299acb546855a19a32fe32af, type: 3}
   debugTxt: {fileID: 1786373747611480228}
 --- !u!114 &1854062486733892258
 MonoBehaviour:
