@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     public Transform[] respawnPos;
     CharFA[] controllers;
     public float cherckerArea;
-    public int winningScore = 300;
+    public int winningScore = 100;
     public int killPoints = 50;
     public int diePenalty = 20;
     static GameManager _GM;

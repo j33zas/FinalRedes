@@ -19817,7 +19817,7 @@ MonoBehaviour:
   - {fileID: 2007979805}
   - {fileID: 310773623}
   cherckerArea: 0.5
-  winningScore: 300
+  winningScore: 100
   killPoints: 50
   diePenalty: 20
 --- !u!4 &1770385923

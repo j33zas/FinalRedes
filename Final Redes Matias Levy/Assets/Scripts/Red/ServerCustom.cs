@@ -5,12 +5,14 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
 using Photon.Realtime;
+using System.Linq;
 
 public class ServerCustom : MonoBehaviourPun
 {
     //server stuff
     public static ServerCustom server;
     public CharFA charControllerPF;
+    public EndScreen EndScreenPF;
     Player _serverPL;
     Dictionary<Player, CharFA> PLToCharFA = new Dictionary<Player, CharFA>();
     Dictionary<CharFA, Player> CharFAToPL = new Dictionary<CharFA, Player>();
@@ -47,7 +49,7 @@ public class ServerCustom : MonoBehaviourPun
         CharFA charInstance = PhotonNetwork.Instantiate(charControllerPF.name, Vector3.zero, Quaternion.identity).GetComponent<CharFA>();
         PLToCharFA.Add(PL, charInstance);
         CharFAToPL.Add(charInstance, PL);
-        if (PLToCharFA.Count >= 1 && !allPLin)//cambiar a 4 para cumplir
+        if (PLToCharFA.Count >= 2 && !allPLin)//cambiar a 4 para cumplir
         {
             if (LobbyManager.lobby != null)
                 LobbyManager.lobby.AllPlayersIn();
@@ -98,7 +100,7 @@ public class ServerCustom : MonoBehaviourPun
 
     public void DestroyMe(GameObject GO)
     {
-        if(PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient && GO != null)
             PhotonNetwork.Destroy(GO);
     }
     #endregion
@@ -124,7 +126,7 @@ public class ServerCustom : MonoBehaviourPun
     [PunRPC]
     void MovePL(Player PL, Vector2 dir)
     {
-        if(PLToCharFA.ContainsKey(PL))
+        if (PLToCharFA.ContainsKey(PL))
             PLToCharFA[PL].Move(dir);
     }
     #endregion
@@ -150,7 +152,7 @@ public class ServerCustom : MonoBehaviourPun
     [PunRPC]
     void ShootPL(Player PL)
     {
-        if(PLToCharFA.ContainsKey(PL))
+        if (PLToCharFA.ContainsKey(PL))
             PLToCharFA[PL].Shoot();
     }
     #endregion
@@ -167,7 +169,7 @@ public class ServerCustom : MonoBehaviourPun
     [PunRPC]
     void PlayerDMG(Player DmgReceiver, Player hitter, int DMG)
     {
-        if(PLToCharFA.ContainsKey(DmgReceiver) && PLToCharFA.ContainsKey(hitter))
+        if (PLToCharFA.ContainsKey(DmgReceiver) && PLToCharFA.ContainsKey(hitter))
             PLToCharFA[DmgReceiver].TakeDMG(DMG, PLToCharFA[hitter]);
     }
     #endregion
@@ -208,7 +210,29 @@ public class ServerCustom : MonoBehaviourPun
     [PunRPC]
     void ReloadRPC(Player PL)
     {
-        PLToCharFA[PL].Reload();    
+        PLToCharFA[PL].Reload();
+    }
+    #endregion
+
+    #region Win!
+    public void RequestWin(CharFA CH)
+    {
+        if (!PLToCharFA.ContainsValue(CH))
+            return;
+        List<string> names = new List<string>();
+        var temp = PLToCharFA.OrderBy(pairs => pairs.Value.score);  //ordeno por score
+        foreach (var item in PLToCharFA)
+            names.Add(item.Key.NickName);                           //guardo en la lista provisoria
+        PhotonNetwork.Instantiate(EndScreenPF.name, Vector3.zero, Quaternion.identity).GetComponent<EndScreen>();
+        photonView.RPC("RPCWinner", RpcTarget.All, names.ToArray());
+    }
+
+    [PunRPC]
+    void RPCWinner(string[]names)
+    {
+        var screen = FindObjectOfType<EndScreen>();
+        screen.LoadNames(names);
+        PhotonNetwork.LoadLevel("Lobby");
     }
     #endregion
 }

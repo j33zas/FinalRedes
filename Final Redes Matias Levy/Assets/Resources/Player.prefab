@@ -287,12 +287,12 @@ MonoBehaviour:
   currentGun: {fileID: 6619020334120268063}
   maxHP: 100
   _HP: 0
-  maxSpeed: 2
+  maxSpeed: 3
   dead: 0
   timeToRespawn: 5
   inputPF: {fileID: 3277927090424214994, guid: 3699ae51aac80744cbabea9cf7a98dac, type: 3}
   UIPF: {fileID: 4787075197410431014, guid: 8b83b51d299acb546855a19a32fe32af, type: 3}
-  _score: 0
+  score: 0
 --- !u!50 &9057015049377533582
 Rigidbody2D:
   serializedVersion: 4

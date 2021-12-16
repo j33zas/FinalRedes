@@ -41,26 +41,17 @@ public class NetManager : MonoBehaviourPunCallbacks
 
     public void ConnectToServer()
     {
-        if(!PhotonNetwork.JoinRoom(_serverID))
-        {
-            warnings.text += "Lobby full" + "/n";
-        }
+        PhotonNetwork.JoinRoom(_serverID);
     }
 
     public void CreateServer()
     {
-        if(!PhotonNetwork.CreateRoom(_serverID, _RoomOPS, TypedLobby.Default))
-        {
-            warnings.text += "Lobby name taken" + "/n";
-        }
+        PhotonNetwork.CreateRoom(_serverID, _RoomOPS, TypedLobby.Default);
     }
 
     public void JoinOrCreate()
     {
-        if(PhotonNetwork.JoinOrCreateRoom(_serverID, _RoomOPS, TypedLobby.Default))
-        {
-            warnings.text += "can't join/create lobby" + "/n";
-        }
+        PhotonNetwork.JoinOrCreateRoom(_serverID, _RoomOPS, TypedLobby.Default);
     }
 
     public override void OnConnectedToMaster()
@@ -81,15 +72,12 @@ public class NetManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
-
+        warnings.text += "Lobby full" + "/n";
     }
+
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
-
-    }
-    public override void OnJoinRandomFailed(short returnCode, string message)
-    {
-
+        warnings.text += "can't create lobby" + "/n";
     }
 
     public void QuitApp()

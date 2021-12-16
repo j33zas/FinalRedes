@@ -29,7 +29,7 @@ public class CharFA : MonoBehaviourPun
     LocalUI UI;
     Player MEPL;
     //misc
-    public int _score = 0;
+    public int score = 0;
     bool HasControl = true;
 
     private void Awake()
@@ -103,10 +103,10 @@ public class CharFA : MonoBehaviourPun
         _AN.SetBool("Dead", true);
         HasControl = false;
         dead = true;
-        _score -= scoreLoss;
-        photonView.RPC("ScoreUI", MEPL, _score);
-        if (_score < 0)
-            _score = 0;
+        score -= scoreLoss;
+        photonView.RPC("ScoreUI", MEPL, score);
+        if (score < 0)
+            score = 0;
         StartCoroutine(RespawnTimer());
     }
 
@@ -161,19 +161,18 @@ public class CharFA : MonoBehaviourPun
         dead = false;
         _currTimeToRespawn = timeToRespawn;
         currentGun.Respawn();
-        photonView.RPC("ResetHP", MEPL, _HP, maxHP);
+        photonView.RPC("ResetHP", MEPL);
         _AN.SetBool("Dead", false);
     }
     #endregion
 
     public void Score(int pointsAdded)
     {
-        _score += pointsAdded;
-        photonView.RPC("ScoreUI", MEPL, _score);
-        if(_score > GameManager.GM.winningScore)
+        score += pointsAdded;
+        photonView.RPC("ScoreUI", MEPL, score);
+        if(score > GameManager.GM.winningScore)
         {
-            //ServerCustom.server.requestWin();
-            Debug.LogError(name + " IS THE WINNER");
+            ServerCustom.server.RequestWin(this);
         }
     }
 
