@@ -29,6 +29,7 @@ public class CharFA : MonoBehaviourPun
     Player MEPL;
     Camera MyCamera;
     public Camera CamPF;
+    public GameObject body;
     //misc
     public int score = 0;
     bool HasControl = true;
@@ -58,7 +59,7 @@ public class CharFA : MonoBehaviourPun
     public void Look(Vector3 v3)
     {
         if(HasControl)
-            transform.up = v3;
+            body.transform.up = v3;
     }
 
     public void Shoot()
