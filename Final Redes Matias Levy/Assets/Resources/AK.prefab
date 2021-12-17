@@ -126,7 +126,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fireRate: 0.2
   maxAmmo: 35
-  recoil: 0
+  recoil: 10
   reloadTime: 1
   shootPos: {fileID: 137452840439091144}
   bullet: {fileID: 3054893250752478161, guid: 78fb77042870e9f42be400db0167fc1d, type: 3}

@@ -10,6 +10,7 @@ public class CharInput : MonoBehaviourPun
     float moveDiry;
     Vector2 moveDir;
     Vector2 mousePos;
+    public Camera cam;
     CharFA _me;
     public CharFA Controller
     {
@@ -32,13 +33,14 @@ public class CharInput : MonoBehaviourPun
         while(true)
         {
             yield return new WaitForSeconds(ServerCustom.TickRate);
+
             moveDirx = Input.GetAxis("Horizontal");
             moveDiry = Input.GetAxis("Vertical");
             moveDir = new Vector2(moveDirx, moveDiry).normalized;
-            mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3 lookDir = new Vector2(_me.transform.position.x, _me.transform.position.y) - mousePos;
-
             ServerCustom.server.RequestMove(PhotonNetwork.LocalPlayer, moveDir);
+
+            mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 lookDir = new Vector2(_me.transform.position.x, _me.transform.position.y) - mousePos;
             ServerCustom.server.RequestLook(PhotonNetwork.LocalPlayer, lookDir);
 
             if (Input.GetMouseButton(0))//m1 apretado
@@ -46,9 +48,6 @@ public class CharInput : MonoBehaviourPun
 
             if (Input.GetKeyDown(KeyCode.R))
                 ServerCustom.server.RequestReload(PhotonNetwork.LocalPlayer);
-
-            //if (Input.GetKeyDown(KeyCode.Q))
-            //    ServerCustom.server.RequestChangeWPN(PhotonNetwork.LocalPlayer);
         }
     }
 }

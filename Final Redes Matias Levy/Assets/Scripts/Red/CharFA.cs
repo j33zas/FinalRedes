@@ -7,8 +7,7 @@ using Photon.Realtime;
 public class CharFA : MonoBehaviourPun
 {
     //guns
-    public GunFA currentGun;
-    int currentGunIndex = 0;
+    public GunFA Gun;
     //stats
     public int maxHP;
     [SerializeField]
@@ -28,6 +27,8 @@ public class CharFA : MonoBehaviourPun
     public LocalUI UIPF;
     LocalUI UI;
     Player MEPL;
+    Camera MyCamera;
+    public Camera CamPF;
     //misc
     public int score = 0;
     bool HasControl = true;
@@ -36,23 +37,13 @@ public class CharFA : MonoBehaviourPun
     {
         DontDestroyOnLoad(gameObject);
 
-        #region defino input
-        var temp = FindObjectsOfType<CharInput>();
-        if(temp.Length < 1)
-        {
-            _input = Instantiate(inputPF, Vector3.zero, Quaternion.identity);
-            _input.Controller = this;
-            _input.transform.parent = transform;
-        }
-        #endregion
-
         #region GetComponents
         _RB = GetComponent<Rigidbody2D>();
         _AN = GetComponentInChildren<Animator>();
         _COLL = GetComponent<Collider2D>();
         #endregion
 
-        currentGun.Respawn();
+        Gun.Respawn();
         _currSpeed = maxSpeed;
         _HP = maxHP;
         _currTimeToRespawn = timeToRespawn;
@@ -61,7 +52,7 @@ public class CharFA : MonoBehaviourPun
     public void Move(Vector2 dir)
     {
         if(HasControl)
-            transform.position += new Vector3(dir.x, dir.y, transform.position.z) * maxSpeed * Time.deltaTime;
+            transform.position += new Vector3(dir.x, dir.y, transform.position.z) * _currSpeed * Time.deltaTime;
     }
 
     public void Look(Vector3 v3)
@@ -75,13 +66,8 @@ public class CharFA : MonoBehaviourPun
         if (!photonView.IsMine)
             return;
         if(HasControl)
-        {
-            if(currentGun.Shoot())
-            {
-                _AN.SetInteger("GunIndex", currentGunIndex);
+            if(Gun.Shoot())
                 _AN.SetTrigger("Shoot");
-            }
-        }
     }
 
     public void Reload()
@@ -89,7 +75,7 @@ public class CharFA : MonoBehaviourPun
         if(HasControl)
         {
             _AN.SetBool("Reloading", true);
-            StartCoroutine(currentGun.Reload());
+            StartCoroutine(Gun.Reload());
         }
     }
 
@@ -104,22 +90,11 @@ public class CharFA : MonoBehaviourPun
         HasControl = false;
         dead = true;
         score -= scoreLoss;
-        photonView.RPC("ScoreUI", MEPL, score);
         if (score < 0)
             score = 0;
+        photonView.RPC("ScoreUI", MEPL, score);
         StartCoroutine(RespawnTimer());
     }
-
-    //public void ChangeWPN()
-    //{
-    //    Guns[currentGunIndex].gameObject.SetActive(false);
-    //    currentGunIndex++;
-    //    if (currentGunIndex > Guns.Length - 1)
-    //        currentGunIndex = 0;
-
-    //    Guns[currentGunIndex].gameObject.SetActive(true);
-    //    currentGun = Guns[currentGunIndex];
-    //}
 
     public void ReceiveDamage(int DMG, CharFA damager)
     {
@@ -160,7 +135,7 @@ public class CharFA : MonoBehaviourPun
         HasControl = true;
         dead = false;
         _currTimeToRespawn = timeToRespawn;
-        currentGun.Respawn();
+        Gun.Respawn();
         photonView.RPC("ResetHP", MEPL);
         _AN.SetBool("Dead", false);
     }
@@ -185,7 +160,16 @@ public class CharFA : MonoBehaviourPun
     [PunRPC]
     void RPCInitialize()
     {
+        #region defino input
+        _input = Instantiate(inputPF, Vector3.zero, Quaternion.identity);
+        _input.Controller = this;
+        _input.transform.parent = transform;
+        #endregion
+
         UI = Instantiate(UIPF, Vector3.zero, Quaternion.identity);
+        MyCamera = Instantiate(CamPF, new Vector3(transform.position.x, transform.position.y, -10), Quaternion.identity);
+        MyCamera.transform.parent = transform;
+        _input.cam = MyCamera;
         _HP = maxHP;
     }
 
@@ -204,6 +188,11 @@ public class CharFA : MonoBehaviourPun
     void ResetHP()
     {
         UI.ResetHPValues();
+    }
+    [PunRPC]
+    void CameraMoveRPC()
+    {
+
     }
     #endregion
 }

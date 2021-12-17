@@ -147,9 +147,6 @@ MonoBehaviour:
   - Type: 4
     SynchronizeType: 2
     Name: Dead
-  - Type: 3
-    SynchronizeType: 2
-    Name: GunIndex
   - Type: 4
     SynchronizeType: 2
     Name: Reloading
@@ -284,14 +281,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc1edb93cd17db34cb96e56cf9a63e56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentGun: {fileID: 6619020334120268063}
+  Gun: {fileID: 6619020334120268063}
   maxHP: 100
   _HP: 0
-  maxSpeed: 3
+  maxSpeed: 2
   dead: 0
   timeToRespawn: 5
   inputPF: {fileID: 3277927090424214994, guid: 3699ae51aac80744cbabea9cf7a98dac, type: 3}
   UIPF: {fileID: 4787075197410431014, guid: 8b83b51d299acb546855a19a32fe32af, type: 3}
+  CamPF: {fileID: 7162762714588249885, guid: eb231b2694f986d4dbde4abc21296847, type: 3}
   score: 0
 --- !u!50 &9057015049377533582
 Rigidbody2D:
@@ -365,7 +363,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_PositionModel:
-    SynchronizeEnabled: 1
+    SynchronizeEnabled: 0
     TeleportEnabled: 1
     TeleportIfDistanceGreaterThan: 3
     InterpolateOption: 3
